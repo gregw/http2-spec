@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-04-11T01:07:05.240196+00:00",
+  "timestamp": "2021-04-25T01:09:10.425058+00:00",
   "repo": "httpwg/http2-spec",
   "labels": [
     {
@@ -18114,7 +18114,7 @@
       ],
       "body": "Rules around the closed state are particularly ambigous, because we lack a \"closing\" or equivalent state and any forced local close by RST_STREAM results in incoming frames violating the rules for what is acceptable in closed state since the other end doesn't know it's closed. It used to be even more problematic with priorities since some dependencies could be completely changed. I had a proposal to improve this using a form of ACK for RST/GOAWAY using PING that would allow one side to know when the other side was notified of these frames, but with priorities gone I don't think that's needed anymore. However we still need to be careful about the MUST NOT wording around whatever involves the closed state.\r\n\r\nSuggested by @wtarreau.",
       "createdAt": "2020-10-28T07:15:52Z",
-      "updatedAt": "2020-10-28T08:33:08Z",
+      "updatedAt": "2021-04-24T04:22:46Z",
       "closedAt": null,
       "comments": [
         {
@@ -18123,6 +18123,62 @@
           "body": "Agreed to this, I keep track with a bit of whether _we_ forcibly reset the stream or whether the remote peer did, and give the remote peer some grace if we did. Seems like this is what everyone has to do, but new text might be nice.",
           "createdAt": "2020-10-28T08:20:52Z",
           "updatedAt": "2020-10-28T08:20:52Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "We *could* split the states into two.  It's a little disruptive, but there are just 14 mentions of \"closed\" in the document currently, and a change like this would definitely remove one of those.\r\n\r\nThe definition would be:\r\n* On sending RST_STREAM on a stream in the \"open\", \"half-closed (remote)\", or \"reserved (local)\" states, the stream becomes \"reset\".  In this state, you accept frames as though the stream were \"open\", but aside from PUSH_PROMISE, frames can be ignored.  PUSH_PROMISE frames in this state cause the promised stream to be reserved as normal, these have to be reset if they are not wanted.\r\n* On receiving RST_STREAM on a stream in the \"open\", \"half-closed (local)\", \"reserved (remote)\", or \"reset\" states, the stream becomes \"closed\".  Any frames received on this stream in this state are treated as being in error.\r\n\r\nSending and receiving frames with END_STREAM set don't change: they cause a transition to \"closed\" (or one of the \"half-closed\" states) as before.\r\n\r\nThe diagram gets a little ugly though...\r\n\r\n```\r\n                             +--------+\r\n                     send PP |        | recv PP\r\n                    ,--------|  idle  |--------.\r\n                   /         |        |         \\\r\n                  v          +--------+          v\r\n           +----------+          |           +----------+\r\n           |          |          | send H /  |          |-------.\r\n   ,-------| reserved |          | recv H    | reserved |       |\r\n   |       | (local)  |          |           | (remote) |-----. |\r\n   |       +----------+          v           +----------+     | |\r\n   |           |             +--------+             |         | |\r\n   |           |     recv ES |        | send ES     |         | |\r\n   |    send H |     ,-------|  open  |-------.     | recv H  | |\r\n   |           |    /        |        |        \\    |         | |\r\n   |           v   v         +--------+         v   v         | |\r\n   |       +----------+         |   |          +----------+   | |\r\n   |       |   half   |         |   |          |   half   |   | |\r\n   |       |  closed  |         |   |          |  closed  |   | |\r\n   |       | (remote) |         |   | send R   | (local)  |   | |\r\n   |       +----------+         |   v          +----------+   | |\r\n   |           |                | +-------+       |    |      | |\r\n   |           |                | |       |<------'    |      | |\r\n   |           |         recv R | | reset |  send R    |      | |\r\n   |           |                | |       |<-----------(-----'  |\r\n   |           |                | +-------+  send R    |        |\r\n   |           |                |   |                  |        |\r\n   |           |                |   | recv R           |        |\r\n   |           | recv ES /      |   |                  |        |\r\n   |           | send R /       v   v        recv ES / |        |\r\n   |           | recv R      +--------+      recv R    |        |\r\n   | recv R /  `------------>|        |<---------------'        |\r\n   | send R                  | closed |                  recv R |\r\n   `------------------------>|        |<------------------------'\r\n                             +--------+\r\n```",
+          "createdAt": "2021-04-22T06:25:54Z",
+          "updatedAt": "2021-04-22T06:25:54Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "This could help but an issue remains that a stream can stay forever in reset state because there's no automatic transition to close (no regular traffic, timers nor counters). One possible approach could be to state that after SETTINGS_MAX_CONCURRENT_STREAMS new streams, a reset stream automatically becomes closed. This would avoid keeping infinite amount of resources and avoid relying on a timer. Instead, each end would only keep a fixed size list of streams, and each new one would simply push the oldest reset one out so there wouldn't be any specific bookkeeping to be performed here.\r\n\r\nI don't see this change as a radical one and the diagram doesn't look more complicated to me. It would be nice to get Cory's opinion on this since he's faced similar issues.",
+          "createdAt": "2021-04-22T06:34:23Z",
+          "updatedAt": "2021-04-22T06:34:23Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "Also, thinking about it a bit more, my initial proposal consisting in sending a PING frame after an RST to detect when it had been received is implicitly covered by this mechanism of counting streams, because for the client to initiate as many streams, it proves it has been aware of at least as many closures, hence it received the RST. So that makes the approach even more interesting than my initially proposed one because we don't need to touch anything on the wire and we can still infer the fact that the other end received our RST.\r\n\r\nSo we have everything to help implementations optionally improve if they're interested in this!",
+          "createdAt": "2021-04-22T06:47:09Z",
+          "updatedAt": "2021-04-22T06:47:09Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I agree with @wtarreau that the change to the state diagram and state machine is pretty minor. It doesn't add unnecessary complexity.\r\n\r\nWhat does require thought is the question of automatic transition from \"reset\" to \"closed\". Timers are a bit less than ideal, though if you've got reasonable estimates for the round-trip delay you can arrange a _very_ high fidelity timer for dropping your state.\r\n\r\nThe idea of tombstoning the streams is also pretty good. The problem with \"push the oldest reset one out\" isn't a protocol problem but an implementation problem, which is that a data structure optimised for that use-case is a bit awkward. In most cases the number of concurrent streams on any connection is low so the operation is fairly cheap but it's still not ideal.\r\n\r\nYou can make this a lot cheaper (and we do) by, when resetting a stream, dropping all stream state immediately except for the stream identifier. This lets us throw away our expensive-to-maintain state and retain just enough to ignore the inbound frames. This does expose us to a small period of time where we don't have the capacity to enforce several of the MUSTs in the RFC, but it's more important to us to preserve and minimise our state commitment than to police, say, the flow control window of a stream we don't have anymore.\r\n\r\nI think perhaps the best step is to provide a range of guidance in a \"state management\" section. We don't have this today, but it's probably useful to add. The guidance can be:\r\n\r\n1. When resetting a stream, you transition the stream to the reset state. This state requires keeping around some amount of stream data in order to identify and tolerate frames on that stream.\r\n2. You can drop this state at your own leisure, but it SHOULD last at least as long as one complete RTT, to allow the peer to process the reset.\r\n3. There are a few ways to know that this time has passed:\r\n    1. If you have access to an accurate estimate of the RTT (e.g. via PING frames) you can set a timer.\r\n    2. If you see SETTINGS_MAX_CONCURRENT_STREAMS new streams created since the reset, you can drop the stream.\r\n    3. If you send and get get a response to a PING frame you can drop the stream.\r\n    4. If you send and get a response to a SETTINGS frame you can drop the stream.\r\n    5. If you create a new stream and receive any frame on it you can drop the stream.\r\n\r\nImplementers are however free to implement this logic in whatever way is best for their implementation.\r\n\r\nHow does this seem?",
+          "createdAt": "2021-04-22T07:06:01Z",
+          "updatedAt": "2021-04-22T07:06:01Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "I'm pretty fine with this, and your enumeration of the various ways to infer the round trip are sound and correct, and they give good guidance to implementations.\r\n\r\n+1 for me :-)",
+          "createdAt": "2021-04-22T07:10:11Z",
+          "updatedAt": "2021-04-22T07:10:11Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I think that you both have a higher tolerance for complexity than I do.  That said, it's probably worth doing something in the spec to manage this more cleanly.\r\n\r\nLike Cory, I was thinking that there are plenty of ambient signals you might use to garbage collect reset streams.  Basically anything you send after the RST that has an HTTP/2-level acknowlegment would do.  The list above seems right, though the RTT thing is fraught so I'd drop that.\r\n\r\nOn the other hand, I wouldn't be surprised if many existing implementations simply ignore the set of frames that a reset stream might receive for any closed stream.  That's not a terrible response to this problem.  There is no additional state involved and it is very much simpler.  It doesn't catch people violating the spec, but we don't all have to sign up for the protocol police.\r\n\r\nMaybe the way to rephrase this is to make the lenient thing the primary thing, and then say...\r\n\r\nAn endpoint MAY close a connection if you detect a peer sending frames for a \"closed\" stream if either:\r\n1. The peer has sent a frame on the stream with the END_STREAM flag set\r\n2. The peer has sent RST_STREAM on the stream.\r\n3. This endpoint closed the stream with RST_STREAM and other signals confirm that peer has definitely received the RST_STREAM frame.  This can be detected by: \\<list the above ii..v\\>\r\n\r\n",
+          "createdAt": "2021-04-23T01:28:42Z",
+          "updatedAt": "2021-04-23T01:28:42Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "That would work for me, and we can add a little clause that says \"or any other appropriate signal\".",
+          "createdAt": "2021-04-23T16:30:31Z",
+          "updatedAt": "2021-04-23T16:30:31Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "LGTM as well. Maybe then we should suggest that during this probation period the endpoint should avoid sending RST_STREAM for each received frame of this stream, but I seem to remember there's already a paragraph suggesting to moderate the amount of RST_STREAM emitted.",
+          "createdAt": "2021-04-24T04:22:46Z",
+          "updatedAt": "2021-04-24T04:22:46Z"
         }
       ]
     },
@@ -18140,9 +18196,59 @@
       ],
       "body": "H2 strongly suffers from head-of-line blocking when streams do not progress at the same spead, typically when they come from coalesced connections from different clients. Per-stream flow control is generally ineffective against this as practical window sizes matching a BDP often require impractical buffering between the intermediary and the client. As such we should mention in the recommendations that intermediaries that coalesce connections either have very large buffers or try to group streams from a same client connection together on a server connection.\r\n\r\nSuggested by @wtarreau.",
       "createdAt": "2020-10-28T07:16:23Z",
-      "updatedAt": "2020-10-28T08:33:09Z",
+      "updatedAt": "2021-04-24T04:15:40Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I'm not sure that I'm following the problem statement very well, so I'm not sure what sort of recommendation would go with it.\r\n\r\nIs the problem that when aggregating requests from multiple clients you expose all of those clients - and all of the requests on the corresponding connections - to head-of-line blocking on the shared connection?  That doesn't seem quite right to me - though the requests that share that connection might suffer, the way that a stalled request on one connection might affect other requests on a different connection is limited.\r\n\r\nIf a request affects others, is it because it would consume shared resources like flow control window and connection-level flow control?  Keeping per-stream flow control relatively small relative to the connection limits would be the way to avoid that exposure, would it not?  That said, larger connection-level buffers might reduce contention, but in general more buffering just means more latency.\r\n\r\n@wtarreau, am I chasing the right idea?  Maybe you can provide a paragraph on the problem and I can try to massage it into shape for the draft.",
+          "createdAt": "2021-04-22T05:43:11Z",
+          "updatedAt": "2021-04-22T05:43:11Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "The issue is that the intermediary that coalesces many client connections into a single H2 connection cannot have infinite resources to buffer store the response data for these clients, yet will have to advertise a significantly large stream window to the other end to maintain an acceptable bandwidth. In practice it most often goes well because your advertised window is lower than what can be stored into system buffers. But once a client stalls, all the chain stalls, and you quickly end up in a situation where the advertised stream window is ahead of what you're really able to store.\r\n\r\nNote that looking at how TCP buffers are filled in front is not always effective. You may very well be using H2 on the front with other streams making it hard to figure how much you could really push, you could have SSL under it having its own buffers, you could be applying compression in the middle, also making it hard to figure how much the output gives you on input, etc.\r\n\r\nIn haproxy we've finally adressed this by deciding that *by default* multiple clients are not coalesced over a server-facing H2 connection. We have multiple strategies of connection reuse so this remains configurable, but this was the best compromise we could find.",
+          "createdAt": "2021-04-22T06:59:12Z",
+          "updatedAt": "2021-04-22T06:59:12Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "Probably that we could propose something like this:\r\n```\r\nImplementations that coalesce multiple individual clients' connections over a single H2 connection should be careful to properly adjust the per-stream window so that in no situation the sudden stop of a client requesting a large object results in blocking the transfer. This means the stream windows should never be larger than the total amount of per-stream storage the implementation may allocate to extract contents from the connection's buffers. If determining a sane threshold is not possible, implementations might prefer not to coalesce multiple clients on the same connection.\r\n```\r\n\r\nAlso, please note that the same situation happens the other way around, with multiple uploads over a single H2 connection to multiple servers behind working at different speeds. It's generally less of an issue though, but the large windows necessary to permit fast POST uploads may very well block the retrieval of small objects by the same client within the same connection.",
+          "createdAt": "2021-04-22T07:06:28Z",
+          "updatedAt": "2021-04-22T07:06:28Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Is this just an over-commitment of flow control then?  That is, you advertise a window of N when you only really have space for M < N?\r\n\r\nWhat is interesting is the implication here that you might be forced to advertise the larger window because if you don't you can't get decent throughput, but to do so you are betting that most of that capacity will be used by in-network state (data that is on the wire or in routers and whatnot, along with all the in-system buffers you don't see).  Of course, if that stalls, all that stuff in those buffers will all be forced into your buffers.  That can affect all connections that are somehow entangled with the affected stream.  That means all requests on the same connection, but it could affect other connections.\r\n\r\nAll that said, that's much more involved than your text here.  You appear to be looking for something much simpler.\r\n\r\nWe should have advice about the connection-level flow control credit being backed by real resources.  You say stream, but the purpose of connection-level flow control is to limit resource allocation.  While the stream-level values more directly determine stream-level throughput, the general idea is that they can be set with minimal regard to resource management if there is a good connection-level limit (the main consequence of not jointly managing these is a range of complicated priority issues).\r\n\r\nThe current document is not very good about saying much about any of this.  So any addition along these lines, including a version of that text, would be worth adding.",
+          "createdAt": "2021-04-22T23:55:16Z",
+          "updatedAt": "2021-04-22T23:55:16Z"
+        },
+        {
+          "author": "grmocg",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "When flow-control is set to values that the endpoint will respect, it\nminimizes retransmits due to buffer overruns.\nMinimizing retransmits does not always guarantee highest bandwidth; The\nmore conservative one is with respect to preventing retransmits or buffer\noverruns, the more probable it is that some resources will be unused.\nThis is similar to the tradeoff space of congestion control, however the\nbuffers here are visible to the endpoints.\n\n\nOn Thu, Apr 22, 2021 at 4:55 PM Martin Thomson ***@***.***>\nwrote:\n\n> Is this just an over-commitment of flow control then? That is, you\n> advertise a window of N when you only really have space for M < N?\n>\n> What is interesting is the implication here that you might be forced to\n> advertise the larger window because if you don't you can't get decent\n> throughput, but to do so you are betting that most of that capacity will be\n> used by in-network state (data that is on the wire or in routers and\n> whatnot, along with all the in-system buffers you don't see). Of course, if\n> that stalls, all that stuff in those buffers will all be forced into your\n> buffers. That can affect all connections that are somehow entangled with\n> the affected stream. That means all requests on the same connection, but it\n> could affect other connections.\n>\n> All that said, that's much more involved than your text here. You appear\n> to be looking for something much simpler.\n>\n> We should have advice about the connection-level flow control credit being\n> backed by real resources. You say stream, but the purpose of\n> connection-level flow control is to limit resource allocation. While the\n> stream-level values more directly determine stream-level throughput, the\n> general idea is that they can be set with minimal regard to resource\n> management if there is a good connection-level limit (the main consequence\n> of not jointly managing these is a range of complicated priority issues).\n>\n> The current document is not very good about saying much about any of this.\n> So any addition along these lines, including a version of that text, would\n> be worth adding.\n>\n> \u2014\n> You are receiving this because you are subscribed to this thread.\n> Reply to this email directly, view it on GitHub\n> <https://github.com/httpwg/http2-spec/issues/784#issuecomment-825274188>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/AAHV24VU2LIUVSYK4A7H5VLTKCZPNANCNFSM4TB5NKWA>\n> .\n>\n",
+          "createdAt": "2021-04-23T00:05:50Z",
+          "updatedAt": "2021-04-23T00:05:50Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "The thing is that due to the window-in-window you don't even benefit from the outer buffering (including the wire) if you have too small stream windows. With a single stream (or even H1) this problem does not exist at all as TCP acks at the edge. Here it's different, the data need to be delivered to userland and wait for its turn before the window can open again. I've seen POST requests slow down to 1 Mbps where the equivalent in H1 were 20 times higher using the same buffer size and TCP stack. So users bump the advertised window to compensate for this horrible performance and face random trouble. And on the server side the issue is the same but less visible, it mostly appears when the coalescing gateway and the servers are located on different datacenters a few milliseconds apart. But even at 4 ms with 64k windows it's only 128 Mbps per stream, so you can be sure that users are quite tempted to increase this for certain use cases where they see their devices twiddling thumbs on their 10/40/100G NICs. This is where it is possible to use the whole pipe's length when it's reserved or all streams of a given connection.\r\n\r\nWhat I'm seeking is not to fix the protocol, it is how it is and we all knew about this limitation during its design, but rather to warn users against the risks and effects of not accurately calculating the advertised stream window size in case of combined streams.\r\n",
+          "createdAt": "2021-04-24T04:10:42Z",
+          "updatedAt": "2021-04-24T04:10:42Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "By the way, one easy trap to fall into is to advertise a window corresponding to the buffer used at the connection level, while what matters is how much you can extract from this connection to be able to immediately parse subsequent frames. And often you have no precise ideas of how much space there is outside.",
+          "createdAt": "2021-04-24T04:15:40Z",
+          "updatedAt": "2021-04-24T04:15:40Z"
+        }
+      ]
     },
     {
       "number": 785,
@@ -18331,10 +18437,12 @@
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "revisit-upon-change"
+      ],
       "body": "@ianswett suggests:\r\n\r\nA substantial number of deployed clients and servers do not support the extensibility of SETTINGs or frames in HTTP/2. It may be preferable to mint a new alpn for HTTP2v2 rather than trying to exclude all these peers based on user-agent or other fingerprinting.\r\n\r\nFor existing implementations, this has relatively low cost and greatly reduces deployment risk. At some point, they can drop support for the old h2 alpn and let clients fall back to HTTP 1.1, just like many did when SPDY support was removed.\r\n\r\nMore discussion at https://github.com/martinthomson/http2v2/issues/17",
       "createdAt": "2020-10-28T07:18:06Z",
-      "updatedAt": "2021-02-09T22:31:06Z",
+      "updatedAt": "2021-04-23T08:01:03Z",
       "closedAt": null,
       "comments": [
         {
@@ -18609,7 +18717,7 @@
       "id": "MDU6SXNzdWU3Njg0NDc5ODA=",
       "title": "ENABLE_PUSH from clients",
       "url": "https://github.com/httpwg/http2-spec/issues/793",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
@@ -18618,8 +18726,8 @@
       ],
       "body": "The definition of ENABLE_PUSH implies that it can be set to 0 by a server, but the effect of that is meaningless as it results in treating PUSH_PROMISE as an error.  PUSH_PROMISE can't be sent by a client.\r\n\r\nShould we update the definition?",
       "createdAt": "2020-12-16T04:51:48Z",
-      "updatedAt": "2020-12-23T10:51:44Z",
-      "closedAt": null,
+      "updatedAt": "2021-04-22T04:13:19Z",
+      "closedAt": "2021-04-22T04:13:19Z",
       "comments": [
         {
           "author": "Lukasa",
@@ -18988,15 +19096,15 @@
       "id": "MDU6SXNzdWU4MjQ0NTM4MjE=",
       "title": "TRACE response format",
       "url": "https://github.com/httpwg/http2-spec/issues/827",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "reschke",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "With the resolution of https://github.com/httpwg/http-core/issues/690, http wire formats can use a response format other than \"message/http\".\r\n\r\nHowever, the SHOULD-level requirement:\r\n\r\n> The final recipient of the request SHOULD reflect the message received, excluding some fields described below, back to the client as the content of a 200 (OK) response.\r\n\r\nis still present. What response format should an h2 server use? ",
       "createdAt": "2021-03-08T11:08:26Z",
-      "updatedAt": "2021-03-09T12:04:02Z",
-      "closedAt": null,
+      "updatedAt": "2021-04-22T08:06:00Z",
+      "closedAt": "2021-04-22T08:06:00Z",
       "comments": [
         {
           "author": "Lukasa",
@@ -19039,6 +19147,27 @@
           "body": "I would prefer \"Can use any format.  By the way, message/http exists.\"",
           "createdAt": "2021-03-09T12:04:02Z",
           "updatedAt": "2021-03-09T12:04:02Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Given [the text in -semantics](https://httpwg.org/http-core/draft-ietf-httpbis-semantics-latest.html#rfc.section.9.3.8.p.1):\r\n\r\n> The final recipient of the request SHOULD reflect the message received, excluding some fields described below, back to the client as the content of a 200 (OK) response. The \"message/http\" (Section 10.1 of [Messaging]) format is one way to do so.\r\n\r\nI was going to write something, then realized that I was just repeating that text.  As HTTP/2 is not defining a new stand-alone message format that replaces \"message/http\", there is nothing to add other than repetition.\r\n\r\nI think that we simply close this one with no change.  @reschke, is there any specific action you think we should take?",
+          "createdAt": "2021-04-22T05:02:56Z",
+          "updatedAt": "2021-04-22T05:02:56Z"
+        },
+        {
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Unless we want to define a new formar, or a mapping to message/http, there's nothing that can be done here (I think).\r\n\r\n(Writing a separate doc describing the mapping would be good; it would probably help identifying other open issues, should they exist)",
+          "createdAt": "2021-04-22T07:56:13Z",
+          "updatedAt": "2021-04-22T07:56:13Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "There's a bunch of stuff in HTTP/2 that describes the mapping to HTTP/1.1; it's piecemeal and awkward and it would be great if it didn't exist, but I don't know if it would be a good idea to excise.  I do want to change that to use the generic abstractions from -semantics, but I'm not confident that that will work until it is tried out.\r\n\r\nClosing this one and I will open an issue to track the 1.1 dependency.",
+          "createdAt": "2021-04-22T08:05:58Z",
+          "updatedAt": "2021-04-22T08:05:58Z"
         }
       ]
     },
@@ -19047,15 +19176,15 @@
       "id": "MDU6SXNzdWU4MjkyMjg5Njg=",
       "title": "incorrect requirements for pseudo header field mapping for asterisk form",
       "url": "https://github.com/httpwg/http2-spec/issues/828",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "reschke",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "I'm struggling with <https://greenbytes.de/tech/webdav/rfc7540.html#HttpRequest>:\r\n\r\n> The :authority pseudo-header field includes the authority portion of the target URI ([RFC3986], Section 3.2). The authority MUST NOT include the deprecated userinfo subcomponent for http or https schemed URIs.\r\n>\r\n> To ensure that the HTTP/1.1 request line can be reproduced accurately, this pseudo-header field MUST be omitted when translating from an HTTP/1.1 request that has a request target in origin or asterisk form (see [RFC7230], Section 5.3).\r\n\r\nIf I have\r\n\r\n~~~\r\n  OPTIONS * HTTP/1.1\r\n  Host: example.com\r\n~~~\r\n\r\nand wanted to map this to H2, why would I omit \":authority\" here?\r\n\r\nWild guess: the spec should say \"origin or authority form\", not \"origin or asterisk form\"? ",
       "createdAt": "2021-03-11T14:54:59Z",
-      "updatedAt": "2021-03-31T23:32:58Z",
-      "closedAt": null,
+      "updatedAt": "2021-04-22T04:10:34Z",
+      "closedAt": "2021-04-22T04:10:34Z",
       "comments": [
         {
           "author": "Lukasa",
@@ -19155,7 +19284,7 @@
       "id": "MDU6SXNzdWU4MzMyNTc4NDk=",
       "title": "\"Parameters\" in IANA registries",
       "url": "https://github.com/httpwg/http2-spec/issues/829",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
@@ -19164,8 +19293,8 @@
       ],
       "body": "From IANA:\r\n\r\n> In recent years we've suggested omitting the word \"Parameters\" when creating a set of registries, but because the name of the HTTP/2 group uses it, we'll leave it in place unless you prefer otherwise.\r\n\r\nAs we have the patient open already, it might be OK to change the registry name to follow modern conventions.",
       "createdAt": "2021-03-16T22:58:58Z",
-      "updatedAt": "2021-03-31T23:30:25Z",
-      "closedAt": null,
+      "updatedAt": "2021-04-23T06:31:44Z",
+      "closedAt": "2021-04-23T06:31:43Z",
       "comments": [
         {
           "author": "Lukasa",
@@ -19181,15 +19310,15 @@
       "id": "MDU6SXNzdWU4MzczMjcwOTA=",
       "title": "Setting :scheme for OPTIONS *",
       "url": "https://github.com/httpwg/http2-spec/issues/831",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "See the discussion in #828 and httpwg/http-core#801.\r\n\r\nWe need to explain what to put here.  We never said anything before.",
       "createdAt": "2021-03-22T05:21:59Z",
-      "updatedAt": "2021-03-22T05:21:59Z",
-      "closedAt": null,
+      "updatedAt": "2021-04-23T06:31:25Z",
+      "closedAt": "2021-04-23T06:31:25Z",
       "comments": []
     },
     {
@@ -19204,9 +19333,57 @@
       "labels": [
         "editorial"
       ],
-      "body": "These are getting a little unwieldy as list items, so it is probably time to consider an addressable section for each.",
+      "body": "These are getting a little unwieldy as list items, so it is probably time to consider an addressable section for each.  See #830.",
       "createdAt": "2021-03-24T00:41:42Z",
-      "updatedAt": "2021-03-24T00:41:42Z",
+      "updatedAt": "2021-04-22T04:11:02Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 841,
+      "id": "MDU6SXNzdWU4NjQ2NjcxODE=",
+      "title": "Tweak HTTP/1.1 dependencies",
+      "url": "https://github.com/httpwg/http2-spec/issues/841",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Right now, we have a lot of 1.1-specific language.  In theory, it should be possible to remove 1.1 references and use core HTTP semantics to describe the protocol elements.  That would be much cleaner, but it could be tricky.",
+      "createdAt": "2021-04-22T08:06:53Z",
+      "updatedAt": "2021-04-22T08:06:53Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 842,
+      "id": "MDU6SXNzdWU4NjQ3MDQ5NjQ=",
+      "title": "should reference RFCs 7540 and 8740",
+      "url": "https://github.com/httpwg/http2-spec/issues/842",
+      "state": "OPEN",
+      "author": "reschke",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "informatively, as they are obsoleted by this spec",
+      "createdAt": "2021-04-22T08:49:24Z",
+      "updatedAt": "2021-04-22T08:49:24Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 843,
+      "id": "MDU6SXNzdWU4NjQ3MDc2NzM=",
+      "title": "HTTP2-Settings Header Field Registration needs update",
+      "url": "https://github.com/httpwg/http2-spec/issues/843",
+      "state": "OPEN",
+      "author": "reschke",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "new registry for fields; see <https://httpwg.org/http-core/draft-ietf-httpbis-semantics-latest.html#field.name.registration>",
+      "createdAt": "2021-04-22T08:52:29Z",
+      "updatedAt": "2021-04-22T08:52:29Z",
       "closedAt": null,
       "comments": []
     }
@@ -29974,18 +30151,26 @@
       "labels": [],
       "body": "This doesn't completely remove it, but it only keeps those pieces\r\nnecessary for interoperability with existing implementations: the rules\r\nfor sending PRIORITY frames in different stream states, the format of\r\nthe HEADERS and PRIORITY frames, and the error handling.\r\n\r\nIt replaces the exposition about how priority works with a deprecation\r\nnotice and the little advice that we currently understand to be\r\naccurate.\r\n\r\nCloses #773.",
       "createdAt": "2020-12-22T00:46:08Z",
-      "updatedAt": "2021-01-27T04:53:36Z",
+      "updatedAt": "2021-04-23T07:57:42Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
-      "baseRefOid": "894fb1ede3b6a86bd75ab5376cfb7f7db5b9bd1b",
+      "baseRefOid": "b58675886c14a5c3929d459fe7565e9d5c1e9b30",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "prioritectomy",
-      "headRefOid": "c93a9fb1c91fed71b5df1ba0cb2b56968adbcf3d",
+      "headRefOid": "aa939debb39f6f4f8d901eb4fc7f06337185e04a",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Thanks for the review Robin.  I think that this is much stronger as a result.",
+          "createdAt": "2021-04-23T07:57:42Z",
+          "updatedAt": "2021-04-23T07:57:42Z"
+        }
+      ],
       "reviews": [
         {
           "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTU2ODg2MDk0",
@@ -30003,9 +30188,218 @@
               "originalPosition": 402,
               "body": "Is there a period missing here?",
               "createdAt": "2020-12-22T08:01:17Z",
-              "updatedAt": "2020-12-22T08:04:50Z"
+              "updatedAt": "2021-04-23T01:16:17Z"
             }
           ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQxOTE1NjI2",
+          "commit": {
+            "abbreviatedOid": "c93a9fb"
+          },
+          "author": "rmarx",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "I don't feel super-strongly about any of these, but I feel that given the problems with H2 prioritization, it's good to be as nuanced/concrete as possible. ",
+          "createdAt": "2021-04-22T08:25:45Z",
+          "updatedAt": "2021-04-22T08:41:44Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "This is imo somewhat unclear language: what exactly are the \"resources\" here? When talking about web page construction in other contexts, a \"resource\" is often a file (say main.js), while I feel here resources is more akin to bandwidth (as files are implicitly linked to individual streams?)",
+              "createdAt": "2021-04-22T08:25:45Z",
+              "updatedAt": "2021-04-23T01:16:17Z"
+            },
+            {
+              "originalPosition": 104,
+              "body": "```suggestion\r\n          the content and size of resources, how resources are interrelated, and how those resources will be\r\n```",
+              "createdAt": "2021-04-22T08:26:29Z",
+              "updatedAt": "2021-04-23T01:16:17Z"
+            },
+            {
+              "originalPosition": 199,
+              "body": "Not sure I agree with \"not widely implemented\"... most H2 implementations have a (basic) version of this. \r\n\r\n\"and it's full flexibility was rarely employed\" or \"and it was rarely correctly implemented\" or similar would fit the bill better. (or it can be left out, as this is also said in other terms below)",
+              "createdAt": "2021-04-22T08:28:53Z",
+              "updatedAt": "2021-04-23T01:16:17Z"
+            },
+            {
+              "originalPosition": 308,
+              "body": "Above, it is said that good prioritization can be critical and poor prioritization can lead to performance degradation, which I agree with. As such \"could still be necessary\" is too weak of a statement. \"is still an important aspect to attaining good HTTP/2 performance\" would be better. ",
+              "createdAt": "2021-04-22T08:33:46Z",
+              "updatedAt": "2021-04-23T01:16:17Z"
+            },
+            {
+              "originalPosition": 319,
+              "body": "```suggestion\r\n            format=\"none\">PRIORITY</xref> frames can benefit from applying any priority signals that are\r\n```",
+              "createdAt": "2021-04-22T08:34:45Z",
+              "updatedAt": "2021-04-23T01:16:17Z"
+            },
+            {
+              "originalPosition": 318,
+              "body": "Seeing as the extensible priorities draft also utilizes HTTP headers to communicate its signals, I wonder if this mention of HEADERS frames is too ambiguous for uninitiated readers here? Maybe something like \"HEADERS (as defined in RFC 7540)\" ?",
+              "createdAt": "2021-04-22T08:35:56Z",
+              "updatedAt": "2021-04-23T01:16:17Z"
+            },
+            {
+              "originalPosition": 333,
+              "body": "I wonder if this is a good thing to say, as it has been shown that the defaults in RFC7540 (fair round robin) are typically the worst-case scenario for web page loading performance. \r\n\r\nDoes it not make more sense to deprecate these defaults as well and instead recommend a FIFO/sequential scheme instead in the absence of any signals (or just refer to the extensible priorities draft for the better default options (which also uses FIFO))?",
+              "createdAt": "2021-04-22T08:40:12Z",
+              "updatedAt": "2021-04-23T01:16:17Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQyODQxODk2",
+          "commit": {
+            "abbreviatedOid": "c93a9fb"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-23T01:11:33Z",
+          "updatedAt": "2021-04-23T01:11:33Z",
+          "comments": [
+            {
+              "originalPosition": 104,
+              "body": "size is just another aspect of content :)",
+              "createdAt": "2021-04-23T01:11:33Z",
+              "updatedAt": "2021-04-23T01:16:17Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQyODQyMTI1",
+          "commit": {
+            "abbreviatedOid": "c93a9fb"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-23T01:12:11Z",
+          "updatedAt": "2021-04-23T01:12:11Z",
+          "comments": [
+            {
+              "originalPosition": 199,
+              "body": "How about s/widely/uniformly ?",
+              "createdAt": "2021-04-23T01:12:11Z",
+              "updatedAt": "2021-04-23T01:16:17Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQyODQzNTMz",
+          "commit": {
+            "abbreviatedOid": "aa939de"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-23T01:16:30Z",
+          "updatedAt": "2021-04-23T01:16:31Z",
+          "comments": [
+            {
+              "originalPosition": 333,
+              "body": "Good call.  I was being conservative, but I think that we could easily make a stronger statement here.",
+              "createdAt": "2021-04-23T01:16:31Z",
+              "updatedAt": "2021-04-23T01:16:31Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQyODQzNzMx",
+          "commit": {
+            "abbreviatedOid": "aa939de"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-23T01:17:06Z",
+          "updatedAt": "2021-04-23T01:17:06Z",
+          "comments": [
+            {
+              "originalPosition": 318,
+              "body": "I've tweaked this to say \"if you receive priority signals from HEADERS or PRIORITY frames\", which should be clear enough.",
+              "createdAt": "2021-04-23T01:17:06Z",
+              "updatedAt": "2021-04-23T01:17:06Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQyODQzNzkw",
+          "commit": {
+            "abbreviatedOid": "aa939de"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-23T01:17:17Z",
+          "updatedAt": "2021-04-23T01:17:17Z",
+          "comments": [
+            {
+              "originalPosition": 308,
+              "body": "Done.  Thanks.",
+              "createdAt": "2021-04-23T01:17:17Z",
+              "updatedAt": "2021-04-23T01:17:17Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQzMDA4NjU1",
+          "commit": {
+            "abbreviatedOid": "aa939de"
+          },
+          "author": "rmarx",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-23T07:34:00Z",
+          "updatedAt": "2021-04-23T07:34:01Z",
+          "comments": [
+            {
+              "originalPosition": 104,
+              "body": "Fair enough. It's mainly that size is a parameter typically available only at the server (and is often used in shortest-completion-time schedulers for e.g., multipath) and content (or at least expected content and its semantics/impact) is something typically mainly derived at the client (e.g., difference between render blocking, async or defer JS). \r\n\r\nNow, I don't think it's really necessary to make those nuances here, so I'm fine with dropping it :) ",
+              "createdAt": "2021-04-23T07:34:01Z",
+              "updatedAt": "2021-04-23T07:34:01Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQzMDExNzI0",
+          "commit": {
+            "abbreviatedOid": "aa939de"
+          },
+          "author": "rmarx",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-23T07:37:58Z",
+          "updatedAt": "2021-04-23T07:37:59Z",
+          "comments": [
+            {
+              "originalPosition": 40,
+              "body": "Should there be an \"in\" or \"from\" between  signals   and   HEADERS?",
+              "createdAt": "2021-04-23T07:37:59Z",
+              "updatedAt": "2021-04-23T07:37:59Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQzMDEyMzcx",
+          "commit": {
+            "abbreviatedOid": "aa939de"
+          },
+          "author": "rmarx",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "These address all my points nicely, thanks!",
+          "createdAt": "2021-04-23T07:38:49Z",
+          "updatedAt": "2021-04-23T07:38:49Z",
+          "comments": []
         }
       ]
     },
@@ -31436,7 +31830,7 @@
       "labels": [],
       "body": "HTTP/1.1 to HTTP/2 Upgrade was never widely deployed and has no\r\nparticular defenders. This change removes the text explaining and\r\ndefining the mechanism.\r\n\r\nResolves #772.\r\n\r\nThis change still requires discussion on the mailing list.",
       "createdAt": "2021-02-17T17:50:19Z",
-      "updatedAt": "2021-02-23T23:01:14Z",
+      "updatedAt": "2021-04-22T12:51:10Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
@@ -31539,6 +31933,19 @@
           "body": "",
           "createdAt": "2021-02-23T23:01:10Z",
           "updatedAt": "2021-02-23T23:01:10Z",
+          "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQyMTU4NDk1",
+          "commit": {
+            "abbreviatedOid": "51bc906"
+          },
+          "author": "bencebeky",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-04-22T12:51:10Z",
+          "updatedAt": "2021-04-22T12:51:10Z",
           "comments": []
         }
       ]
@@ -31729,24 +32136,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTk3Njc1NDQ2",
       "title": "Rewrite :authority description",
       "url": "https://github.com/httpwg/http2-spec/pull/830",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "I think that this is better, but I'd like input on that.\r\n\r\nI've tried to simplify this into 3 chunks:\r\n\r\n* requests generated natively in HTTP/2\r\n* translating HTTP/1.1 -> HTTP/2\r\n* translating HTTP/2 -> HTTP/1.1\r\n\r\nI realized that absolute-form was underserved here.  I could have\r\nexcluded it on the basis that it is special, but the rules seemed fairly\r\nclear - at least regarding :authority, so that went in too.\r\n\r\nThe text now deals more fully with absolute form.  The previous text\r\nreally only hinted at the possibility that there might be two values.\r\nThis points to -messaging for what to do about those two values (hint:\r\n:authority wins).\r\n\r\nCloses #828.",
       "createdAt": "2021-03-22T05:18:41Z",
-      "updatedAt": "2021-03-22T09:04:24Z",
+      "updatedAt": "2021-04-22T04:10:34Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "pseudo-mapping-creation",
       "headRefOid": "b615f32e0aa27b991e6d1642634f837e753a36f7",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-04-22T04:10:34Z",
+      "mergedAt": "2021-04-22T04:10:33Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "b0e7e31a2ba2a9b2ea0b6ced69b8b9ad7ee3edc1"
+      },
       "comments": [],
       "reviews": [
         {
@@ -31782,24 +32191,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTk3NjgzMjky",
       "title": ":scheme is just the scheme",
       "url": "https://github.com/httpwg/http2-spec/pull/832",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "This is either taken from the target URI, or translated in (S3.3 of\r\n-messaging).  Unless it is CONNECT where is is absent.\r\n\r\nCloses #831.",
       "createdAt": "2021-03-22T05:33:12Z",
-      "updatedAt": "2021-03-22T08:59:03Z",
+      "updatedAt": "2021-04-23T06:31:30Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "what-scheme",
-      "headRefOid": "827bc70395c67277b7238448f6493ce8f7985244",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "63c7c12948f0a2647413cda0c4da465f92c6dc42",
+      "closedAt": "2021-04-23T06:31:25Z",
+      "mergedAt": "2021-04-23T06:31:25Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "6ef5e8e13ebcc86eb7368c1c6ba1cb54567dfc5b"
+      },
       "comments": [],
       "reviews": [
         {
@@ -31814,6 +32225,39 @@
           "createdAt": "2021-03-22T08:59:03Z",
           "updatedAt": "2021-03-22T08:59:03Z",
           "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQxNzYxNTk3",
+          "commit": {
+            "abbreviatedOid": "827bc70"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-22T04:12:35Z",
+          "updatedAt": "2021-04-22T04:12:35Z",
+          "comments": [
+            {
+              "originalPosition": 7,
+              "body": "```suggestion\r\n                  request target.  The scheme is taken from the target URI (<xref target=\"RFC3986\"\r\n```",
+              "createdAt": "2021-04-22T04:12:35Z",
+              "updatedAt": "2021-04-22T04:13:06Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQxODEzNDEw",
+          "commit": {
+            "abbreviatedOid": "63c7c12"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-04-22T06:20:40Z",
+          "updatedAt": "2021-04-22T06:20:40Z",
+          "comments": []
         }
       ]
     },
@@ -31822,24 +32266,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTk3Njg5MDY5",
       "title": "SETTINGS_ENABLE_PUSH from the server",
       "url": "https://github.com/httpwg/http2-spec/pull/833",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "The previous text implied that a value of 1 was a problem,\r\nwhich was somewhat in tension with the default being 1 and servers\r\nmostly not sending the setting.  So clearly what was being checked by\r\nclient was the frame, not the value.  This changes to checking the\r\nsetting as it arrives, changes where that text lives.\r\n\r\nAlso, this changes from \"endpoint\" to \"client\" or \"server\" as\r\nappropriate to match actual practice.\r\n\r\nCloses #793.",
       "createdAt": "2021-03-22T05:45:06Z",
-      "updatedAt": "2021-03-24T00:40:18Z",
+      "updatedAt": "2021-04-22T04:13:19Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "client-enable-push",
       "headRefOid": "0aeb362d3e36c672e94c5f4d3605636096a95551",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-04-22T04:13:19Z",
+      "mergedAt": "2021-04-22T04:13:19Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "8fdd07f91ac4c5572a5472a24ff63526ffcaf8e5"
+      },
       "comments": [],
       "reviews": [
         {
@@ -31876,13 +32322,13 @@
       "labels": [],
       "body": "Fixes #786 ",
       "createdAt": "2021-04-01T00:35:32Z",
-      "updatedAt": "2021-04-01T07:29:51Z",
+      "updatedAt": "2021-04-22T08:03:11Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
       "headRepository": "mnot/http2-spec",
       "headRefName": "mnot-786",
-      "headRefOid": "eb954797b9096a94fec06ca67fa32a4b0f5329f3",
+      "headRefOid": "d453f9bda5bb8d50442fe9dac259fd8ed09c2e61",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -31901,6 +32347,72 @@
           "createdAt": "2021-04-01T07:29:51Z",
           "updatedAt": "2021-04-01T07:29:51Z",
           "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQxNzYzOTEx",
+          "commit": {
+            "abbreviatedOid": "eb95479"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "This is great.  I had some trouble with the mega-sentence.  That said, my rewording might not be much better.",
+          "createdAt": "2021-04-22T04:20:11Z",
+          "updatedAt": "2021-04-22T04:25:43Z",
+          "comments": [
+            {
+              "originalPosition": 52,
+              "body": "This is one mega-sentence.  How about:\r\n\r\n```suggestion\r\n          Server push was designed to allow a server to exploit knowledge about resources to\r\n          improve client-perceived performance.  A server that could correctly predict a request\r\n          might reduce latency by pushing a response to clients. For example, with HTML, server\r\n          push might be used for linked content like stylesheets, scripts, and images.\r\n```",
+              "createdAt": "2021-04-22T04:20:11Z",
+              "updatedAt": "2021-04-22T06:29:01Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQxODE4NjUw",
+          "commit": {
+            "abbreviatedOid": "eb95479"
+          },
+          "author": "mnot",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-22T06:29:06Z",
+          "updatedAt": "2021-04-22T06:29:06Z",
+          "comments": [
+            {
+              "originalPosition": 52,
+              "body": "PTAL at latest commit",
+              "createdAt": "2021-04-22T06:29:06Z",
+              "updatedAt": "2021-04-22T06:29:06Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQxODkyMzg5",
+          "commit": {
+            "abbreviatedOid": "d453f9b"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Very nice.  Thanks Mark.",
+          "createdAt": "2021-04-22T08:01:27Z",
+          "updatedAt": "2021-04-22T08:03:11Z",
+          "comments": [
+            {
+              "originalPosition": 52,
+              "body": "```suggestion\r\n          for stylesheets and scripts referenced by that page. When these requests\r\n```",
+              "createdAt": "2021-04-22T08:01:27Z",
+              "updatedAt": "2021-04-22T08:03:11Z"
+            },
+            {
+              "originalPosition": 62,
+              "body": "I think that you might say \"pushing any significant amount of data\".  It doesn't need to be a whole round trip worth.  Even a fraction of a round trip worth can starve out a high priority request that arrives immediately after starting.",
+              "createdAt": "2021-04-22T08:02:58Z",
+              "updatedAt": "2021-04-22T08:03:11Z"
+            }
+          ]
         }
       ]
     },
@@ -31929,6 +32441,315 @@
       "mergeCommit": null,
       "comments": [],
       "reviews": []
+    },
+    {
+      "number": 837,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjIwNzQxMTY4",
+      "title": "Stop using \"settings parameters\"",
+      "url": "https://github.com/httpwg/http2-spec/pull/837",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [
+        "editorial"
+      ],
+      "body": "In the spirit of the naming simplications of the recent HTTP changes, we\r\ncan talk about settings in this revision.\r\n\r\nThis aligns better with HTTP/3, though that still uses \"settings\r\nparameters\" (with that ugly double-plural).\r\n\r\ncc @MikeBishop ",
+      "createdAt": "2021-04-22T04:09:07Z",
+      "updatedAt": "2021-04-22T06:22:18Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "settings-not-parameters",
+      "headRefOid": "3b4b98d2c829136db68772d3b35f4fc9b644a5fa",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQxODE0Mzgx",
+          "commit": {
+            "abbreviatedOid": "3b4b98d"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-04-22T06:22:18Z",
+          "updatedAt": "2021-04-22T06:22:18Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 838,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjIwNzQxMjMz",
+      "title": "Remove \"parameters\" from the IANA registry name",
+      "url": "https://github.com/httpwg/http2-spec/pull/838",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [
+        "editorial"
+      ],
+      "body": "Closes #829.",
+      "createdAt": "2021-04-22T04:09:16Z",
+      "updatedAt": "2021-04-23T06:31:46Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "no-parameters",
+      "headRefOid": "7124f530375be451b4bd0c55ccbdd84d6052fd16",
+      "closedAt": "2021-04-23T06:31:44Z",
+      "mergedAt": "2021-04-23T06:31:43Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQxODEzNjAz",
+          "commit": {
+            "abbreviatedOid": "7124f53"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-04-22T06:21:00Z",
+          "updatedAt": "2021-04-22T06:21:00Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 839,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjIwNzQ4NzMz",
+      "title": "references: IETF series should be first",
+      "url": "https://github.com/httpwg/http2-spec/pull/839",
+      "state": "MERGED",
+      "author": "reschke",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "(there are more nits like missing DOIs etc, but let's do this one by one)",
+      "createdAt": "2021-04-22T04:31:26Z",
+      "updatedAt": "2021-04-22T04:39:43Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "8fdd07f91ac4c5572a5472a24ff63526ffcaf8e5",
+      "headRepository": "reschke/http2-spec",
+      "headRefName": "patch-2",
+      "headRefOid": "6958de791a98536d5eb6bddc2a9cfd45f108a901",
+      "closedAt": "2021-04-22T04:39:43Z",
+      "mergedAt": "2021-04-22T04:39:43Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "53eb9c8ec5c025e4d28646be6a99b7fe9117d2f1"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 840,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjIwNzU1NzYy",
+      "title": "update core spec references",
+      "url": "https://github.com/httpwg/http2-spec/pull/840",
+      "state": "MERGED",
+      "author": "reschke",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-04-22T04:51:16Z",
+      "updatedAt": "2021-04-22T05:03:28Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "53eb9c8ec5c025e4d28646be6a99b7fe9117d2f1",
+      "headRepository": "reschke/http2-spec",
+      "headRefName": "patch-3",
+      "headRefOid": "4968686c8d4be47d8ed4fe1758c7d88f67b71e60",
+      "closedAt": "2021-04-22T05:03:28Z",
+      "mergedAt": "2021-04-22T05:03:28Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "b58675886c14a5c3929d459fe7565e9d5c1e9b30"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 844,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjIxNzE0ODM3",
+      "title": "Do the obsoletes thing properly",
+      "url": "https://github.com/httpwg/http2-spec/pull/844",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "The current rules state that you need to include text in abstract and\r\nintroduction.\r\n\r\nThis will result in redundant entries for the specs with other changes that add 7540 references, but we can sort that out later. \r\n\r\nCloses #842.",
+      "createdAt": "2021-04-23T02:00:26Z",
+      "updatedAt": "2021-04-23T16:30:57Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "b58675886c14a5c3929d459fe7565e9d5c1e9b30",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "reference-obsoleted",
+      "headRefOid": "6839dc93b60d6075f3d58e0a49faf27343c919bf",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQzNDc1MTcz",
+          "commit": {
+            "abbreviatedOid": "6839dc9"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "Rules are boring. Be a rebel without a pause. Omit that text.",
+          "createdAt": "2021-04-23T16:30:57Z",
+          "updatedAt": "2021-04-23T16:30:57Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 845,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjIxODMzMTUy",
+      "title": "Make HTTP/1.1 reference informational",
+      "url": "https://github.com/httpwg/http2-spec/pull/845",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This required a little careful rewriting of text that only recently\r\nrewrote.  Hopefully this retains the improvements of that rewrite.\r\n\r\nCloses #841.",
+      "createdAt": "2021-04-23T07:10:47Z",
+      "updatedAt": "2021-04-23T16:38:25Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "http11-info",
+      "headRefOid": "39644371101ff0eb038fdef4ec24d7035d57efb8",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQzNDgxMTI3",
+          "commit": {
+            "abbreviatedOid": "3964437"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "Nice. I think the retains the original meaning of the text well enough, and is as clear as it can be without ever needing to normatively invoke HTTP/1.1. Needle well threaded.",
+          "createdAt": "2021-04-23T16:38:25Z",
+          "updatedAt": "2021-04-23T16:38:25Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 846,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjIxODU4ODU0",
+      "title": "What characters are permitted",
+      "url": "https://github.com/httpwg/http2-spec/pull/846",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This encodes the conclusions from interim discussions:\r\n\r\n1. CR, LF, and NUL cannot appear anywhere in field names or values.\r\n2. SP and HTAB cannot appear at the start or end of field names or\r\nvalues.\r\n3. COLON cannot appear anywhere in a field name, except for the colon at\r\nthe start of a pseudo-header field name.\r\n\r\nThe strong requirements about validating fields according to ABNF has\r\nbeen replaced.\r\n\r\nThe text is clearer about how the pieces fit together: it is HPACK that\r\nallows any octet, whereas HTTP/2 makes certain choices invalid.\r\n\r\nCloses #815.",
+      "createdAt": "2021-04-23T07:53:05Z",
+      "updatedAt": "2021-04-23T16:45:59Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "allowed-characters",
+      "headRefOid": "f82ea923f84d67d52351649a1b85b5660cab426c",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQzNDg2OTI5",
+          "commit": {
+            "abbreviatedOid": "f82ea92"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "Another good cleanup",
+          "createdAt": "2021-04-23T16:45:59Z",
+          "updatedAt": "2021-04-23T16:45:59Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 847,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjIxODYzNjA5",
+      "title": "Partially-valid request/response handling",
+      "url": "https://github.com/httpwg/http2-spec/pull/847",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #794.",
+      "createdAt": "2021-04-23T08:00:28Z",
+      "updatedAt": "2021-04-23T16:49:17Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "malformed-partial",
+      "headRefOid": "133cb6f3031e56c530ad3e153ad635918335b813",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQzNDg5NDEx",
+          "commit": {
+            "abbreviatedOid": "133cb6f"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-23T16:49:04Z",
+          "updatedAt": "2021-04-23T16:49:17Z",
+          "comments": [
+            {
+              "originalPosition": 14,
+              "body": "Hmm, now that I reread this I feel a bit conflicted by this. MUST NOT be treated by whom?",
+              "createdAt": "2021-04-23T16:49:04Z",
+              "updatedAt": "2021-04-23T16:49:17Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
