@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-04-25T01:09:10.425058+00:00",
+  "timestamp": "2021-04-27T01:03:47.001490+00:00",
   "repo": "httpwg/http2-spec",
   "labels": [
     {
@@ -32322,13 +32322,13 @@
       "labels": [],
       "body": "Fixes #786 ",
       "createdAt": "2021-04-01T00:35:32Z",
-      "updatedAt": "2021-04-22T08:03:11Z",
+      "updatedAt": "2021-04-26T02:26:30Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
       "headRepository": "mnot/http2-spec",
       "headRefName": "mnot-786",
-      "headRefOid": "d453f9bda5bb8d50442fe9dac259fd8ed09c2e61",
+      "headRefOid": "b69a1e0cb00036c520fd2ebf3434ab35cdf75b8a",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -32364,7 +32364,7 @@
               "originalPosition": 52,
               "body": "This is one mega-sentence.  How about:\r\n\r\n```suggestion\r\n          Server push was designed to allow a server to exploit knowledge about resources to\r\n          improve client-perceived performance.  A server that could correctly predict a request\r\n          might reduce latency by pushing a response to clients. For example, with HTML, server\r\n          push might be used for linked content like stylesheets, scripts, and images.\r\n```",
               "createdAt": "2021-04-22T04:20:11Z",
-              "updatedAt": "2021-04-22T06:29:01Z"
+              "updatedAt": "2021-04-26T02:26:30Z"
             }
           ]
         },
@@ -32384,7 +32384,7 @@
               "originalPosition": 52,
               "body": "PTAL at latest commit",
               "createdAt": "2021-04-22T06:29:06Z",
-              "updatedAt": "2021-04-22T06:29:06Z"
+              "updatedAt": "2021-04-26T02:26:30Z"
             }
           ]
         },
@@ -32404,13 +32404,13 @@
               "originalPosition": 52,
               "body": "```suggestion\r\n          for stylesheets and scripts referenced by that page. When these requests\r\n```",
               "createdAt": "2021-04-22T08:01:27Z",
-              "updatedAt": "2021-04-22T08:03:11Z"
+              "updatedAt": "2021-04-26T02:26:30Z"
             },
             {
               "originalPosition": 62,
               "body": "I think that you might say \"pushing any significant amount of data\".  It doesn't need to be a whole round trip worth.  Even a fraction of a round trip worth can starve out a high priority request that arrives immediately after starting.",
               "createdAt": "2021-04-22T08:02:58Z",
-              "updatedAt": "2021-04-22T08:03:11Z"
+              "updatedAt": "2021-04-26T02:26:30Z"
             }
           ]
         }
