@@ -4254,8 +4254,7 @@ Acknowledgements
    *  Mike Bishop (Extensibility).
 
    *  Mark Nottingham, Julian Reschke, James Snell, Jeff Pinner, Mike
-      Bishop, and Herv&#233; Ruellan (Substantial editorial
-      contributions).
+      Bishop, and Hervé Ruellan (Substantial editorial contributions).
 
    *  Kari Hurtta, Tatsuhiro Tsujikawa, Greg Wilkins, Poul-Henning Kamp,
       and Jonathan Thackray.
