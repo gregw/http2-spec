@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-04-27T01:03:47.001490+00:00",
+  "timestamp": "2021-04-29T01:02:42.228782+00:00",
   "repo": "httpwg/http2-spec",
   "labels": [
     {
@@ -18281,7 +18281,7 @@
       "id": "MDU6SXNzdWU3MzExNzYzODg=",
       "title": "Cut Server Push",
       "url": "https://github.com/httpwg/http2-spec/issues/786",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -18290,8 +18290,8 @@
       "labels": [],
       "body": "@ianswett says:\r\n\r\nIt's not very widely used and many implementations either don't support it at all or don't support it in a way that improves end-user performance.\r\n\r\nThis sparked a lively discussion at https://github.com/martinthomson/http2v2/issues/16.",
       "createdAt": "2020-10-28T07:17:23Z",
-      "updatedAt": "2021-02-09T23:04:09Z",
-      "closedAt": null,
+      "updatedAt": "2021-04-27T05:35:15Z",
+      "closedAt": "2021-04-27T05:35:15Z",
       "comments": [
         {
           "author": "Lukasa",
@@ -19360,15 +19360,15 @@
       "id": "MDU6SXNzdWU4NjQ3MDQ5NjQ=",
       "title": "should reference RFCs 7540 and 8740",
       "url": "https://github.com/httpwg/http2-spec/issues/842",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "reschke",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "informatively, as they are obsoleted by this spec",
       "createdAt": "2021-04-22T08:49:24Z",
-      "updatedAt": "2021-04-22T08:49:24Z",
-      "closedAt": null,
+      "updatedAt": "2021-04-27T02:46:46Z",
+      "closedAt": "2021-04-27T02:46:46Z",
       "comments": []
     },
     {
@@ -32315,24 +32315,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NjA2NjE2NTc0",
       "title": "Server Push caveats",
       "url": "https://github.com/httpwg/http2-spec/pull/835",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "mnot",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "Fixes #786 ",
       "createdAt": "2021-04-01T00:35:32Z",
-      "updatedAt": "2021-04-26T02:26:30Z",
+      "updatedAt": "2021-04-27T05:35:15Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
       "headRepository": "mnot/http2-spec",
       "headRefName": "mnot-786",
       "headRefOid": "b69a1e0cb00036c520fd2ebf3434ab35cdf75b8a",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-04-27T05:35:15Z",
+      "mergedAt": "2021-04-27T05:35:15Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "0615c0b27c26c399ce6b71b9e904d1b373c4f78f"
+      },
       "comments": [],
       "reviews": [
         {
@@ -32589,25 +32591,35 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NjIxNzE0ODM3",
       "title": "Do the obsoletes thing properly",
       "url": "https://github.com/httpwg/http2-spec/pull/844",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "The current rules state that you need to include text in abstract and\r\nintroduction.\r\n\r\nThis will result in redundant entries for the specs with other changes that add 7540 references, but we can sort that out later. \r\n\r\nCloses #842.",
       "createdAt": "2021-04-23T02:00:26Z",
-      "updatedAt": "2021-04-23T16:30:57Z",
+      "updatedAt": "2021-04-27T02:47:33Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "b58675886c14a5c3929d459fe7565e9d5c1e9b30",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "reference-obsoleted",
       "headRefOid": "6839dc93b60d6075f3d58e0a49faf27343c919bf",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
-      "comments": [],
+      "closedAt": "2021-04-27T02:46:46Z",
+      "mergedAt": "2021-04-27T02:46:46Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "902a7be29bf1a09b1f1fa723107c131dde7dfec4"
+      },
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Picking my battles more judiciously (as much as I'd like to fight this one, it's a low reward, high risk situation).",
+          "createdAt": "2021-04-27T02:47:31Z",
+          "updatedAt": "2021-04-27T02:47:31Z"
+        }
+      ],
       "reviews": [
         {
           "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQzNDc1MTcz",
@@ -32676,18 +32688,33 @@
       "labels": [],
       "body": "This encodes the conclusions from interim discussions:\r\n\r\n1. CR, LF, and NUL cannot appear anywhere in field names or values.\r\n2. SP and HTAB cannot appear at the start or end of field names or\r\nvalues.\r\n3. COLON cannot appear anywhere in a field name, except for the colon at\r\nthe start of a pseudo-header field name.\r\n\r\nThe strong requirements about validating fields according to ABNF has\r\nbeen replaced.\r\n\r\nThe text is clearer about how the pieces fit together: it is HPACK that\r\nallows any octet, whereas HTTP/2 makes certain choices invalid.\r\n\r\nCloses #815.",
       "createdAt": "2021-04-23T07:53:05Z",
-      "updatedAt": "2021-04-23T16:45:59Z",
+      "updatedAt": "2021-04-28T07:58:05Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "allowed-characters",
-      "headRefOid": "f82ea923f84d67d52351649a1b85b5660cab426c",
+      "headRefOid": "995fbf014b1785efeaf675fb5756a0eb7b2b4aa1",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "mnot",
+          "authorAssociation": "MEMBER",
+          "body": "This allows whitespace and control characters in field names. Is that intentional?",
+          "createdAt": "2021-04-27T07:31:39Z",
+          "updatedAt": "2021-04-27T07:31:39Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "This was intentional, but it can be revised by expanding the set of characters we prohibit.  I had imagined that this would not be different from HTTP/1.1 where \"Foo\\tBar: ?1\" might parse, but is not valid in the same way that \"Foo\\<BEL>Bar: ?1\" is not.  I thought that we had agreed that a close policing of the field name grammar was not required from HTTP/2 implementations.",
+          "createdAt": "2021-04-27T10:47:44Z",
+          "updatedAt": "2021-04-27T10:47:44Z"
+        }
+      ],
       "reviews": [
         {
           "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQzNDg2OTI5",
@@ -32701,6 +32728,119 @@
           "createdAt": "2021-04-23T16:45:59Z",
           "updatedAt": "2021-04-23T16:45:59Z",
           "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ1NTY5NDIx",
+          "commit": {
+            "abbreviatedOid": "f82ea92"
+          },
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "see https://github.com/httpwg/http2-spec/pull/846#issuecomment-827383535",
+          "createdAt": "2021-04-27T08:17:59Z",
+          "updatedAt": "2021-04-27T08:17:59Z",
+          "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ1ODExNTIx",
+          "commit": {
+            "abbreviatedOid": "f82ea92"
+          },
+          "author": "LPardue",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-27T12:48:02Z",
+          "updatedAt": "2021-04-27T12:48:03Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "```suggestion\r\n            do not cause a request to be <xref target=\"malformed\" format=\"none\">malformed</xref>\r\n```",
+              "createdAt": "2021-04-27T12:48:02Z",
+              "updatedAt": "2021-04-28T07:57:55Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ1ODE1MDQ5",
+          "commit": {
+            "abbreviatedOid": "f82ea92"
+          },
+          "author": "LPardue",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-27T12:51:25Z",
+          "updatedAt": "2021-04-27T12:51:26Z",
+          "comments": [
+            {
+              "originalPosition": 11,
+              "body": "obvious observation but this sentence loses the \"field\" subject, which seems worse than the previous version",
+              "createdAt": "2021-04-27T12:51:25Z",
+              "updatedAt": "2021-04-28T07:57:55Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ2NDM0NDI1",
+          "commit": {
+            "abbreviatedOid": "f82ea92"
+          },
+          "author": "gregw",
+          "authorAssociation": "NONE",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2021-04-27T22:43:12Z",
+          "updatedAt": "2021-04-27T22:43:29Z",
+          "comments": [
+            {
+              "originalPosition": 58,
+              "body": "It is not acceptable to not have a clear ABNF definition of acceptable fields.    I am not opposed changing what the characters are, but any new definition must be supported by new ABNF that defines what is and is not acceptable.",
+              "createdAt": "2021-04-27T22:43:12Z",
+              "updatedAt": "2021-04-28T07:57:55Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ2NTYzNjY3",
+          "commit": {
+            "abbreviatedOid": "f82ea92"
+          },
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-28T03:22:58Z",
+          "updatedAt": "2021-04-28T03:22:59Z",
+          "comments": [
+            {
+              "originalPosition": 58,
+              "body": "Can somebody remind me about *why* we are discussing a different set of chars compared to base HTTP (except for the special case of pseudo header fields)?",
+              "createdAt": "2021-04-28T03:22:59Z",
+              "updatedAt": "2021-04-28T07:57:55Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ2NzA5OTEz",
+          "commit": {
+            "abbreviatedOid": "5ba1891"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-28T07:56:46Z",
+          "updatedAt": "2021-04-28T07:56:47Z",
+          "comments": [
+            {
+              "originalPosition": 58,
+              "body": "The original rules (which used the ABNF) were considered onerous by some intermediaries.  Apparently some implementations pass stuff that doesn't conform to the grammar, as previously mandated.  The thrust of the change here was to align with that, requiring that the HTTP/2 parts of implementations only do what is necessary for security.  That doesn't mean that the things that are conveyed are valid HTTP; that's a determination that any endpoint that processes the fields needs to determine.  Consequently it might be that certain fields can be ignored without causing the entire message to be considered malformed.",
+              "createdAt": "2021-04-28T07:56:46Z",
+              "updatedAt": "2021-04-28T07:57:55Z"
+            }
+          ]
         }
       ]
     },
@@ -32716,7 +32856,7 @@
       "labels": [],
       "body": "Closes #794.",
       "createdAt": "2021-04-23T08:00:28Z",
-      "updatedAt": "2021-04-23T16:49:17Z",
+      "updatedAt": "2021-04-27T02:52:34Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
@@ -32748,6 +32888,68 @@
               "updatedAt": "2021-04-23T16:49:17Z"
             }
           ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ1MzAwOTAx",
+          "commit": {
+            "abbreviatedOid": "133cb6f"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-27T02:52:34Z",
+          "updatedAt": "2021-04-27T02:52:34Z",
+          "comments": [
+            {
+              "originalPosition": 14,
+              "body": "Oh yeah, that really isn't clear at all.\r\n\r\nMaybe what this boils down to is that you can't use the REFUSED_STREAM if you do any processing of partial messages.\r\n\r\nI'll give this another go.",
+              "createdAt": "2021-04-27T02:52:34Z",
+              "updatedAt": "2021-04-27T02:52:34Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 848,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjI0MDE2ODEw",
+      "title": "xml2rfc workaround",
+      "url": "https://github.com/httpwg/http2-spec/pull/848",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "xml2rfc is overly pedantic about non-ASCII text.  The result in this\r\ncase was that Herv\u00e9's name was being mangled to include a literal\r\n`&#233;`, even in a text format (where HTML character references make no\r\nsense).  To avoid that, this is what is necessary.  Of course, this\r\nmakes the rendering of the document with the RFC Editor stylesheet look\r\nawful.  I've decided not to concern myself with that part though; the\r\nstylesheet we use is fine.",
+      "createdAt": "2021-04-27T06:22:37Z",
+      "updatedAt": "2021-04-27T06:25:10Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "0615c0b27c26c399ce6b71b9e904d1b373c4f78f",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "contact",
+      "headRefOid": "b54b33a4647b93a03539f83520d61a045adb2b82",
+      "closedAt": "2021-04-27T06:25:05Z",
+      "mergedAt": "2021-04-27T06:25:05Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "fdc20bc6b57519c1eeac70da07d71c9d67238fd2"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ1NDc3ODk0",
+          "commit": {
+            "abbreviatedOid": "b54b33a"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "Good to see the IETF is fully unicode aware. \ud83d\ude10",
+          "createdAt": "2021-04-27T06:24:29Z",
+          "updatedAt": "2021-04-27T06:24:29Z",
+          "comments": []
         }
       ]
     }
