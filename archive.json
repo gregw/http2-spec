@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-04-29T01:02:42.228782+00:00",
+  "timestamp": "2021-05-02T01:08:11.197076+00:00",
   "repo": "httpwg/http2-spec",
   "labels": [
     {
@@ -32688,13 +32688,13 @@
       "labels": [],
       "body": "This encodes the conclusions from interim discussions:\r\n\r\n1. CR, LF, and NUL cannot appear anywhere in field names or values.\r\n2. SP and HTAB cannot appear at the start or end of field names or\r\nvalues.\r\n3. COLON cannot appear anywhere in a field name, except for the colon at\r\nthe start of a pseudo-header field name.\r\n\r\nThe strong requirements about validating fields according to ABNF has\r\nbeen replaced.\r\n\r\nThe text is clearer about how the pieces fit together: it is HPACK that\r\nallows any octet, whereas HTTP/2 makes certain choices invalid.\r\n\r\nCloses #815.",
       "createdAt": "2021-04-23T07:53:05Z",
-      "updatedAt": "2021-04-28T07:58:05Z",
+      "updatedAt": "2021-04-29T04:40:27Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "allowed-characters",
-      "headRefOid": "995fbf014b1785efeaf675fb5756a0eb7b2b4aa1",
+      "headRefOid": "bf4686b6b90897045bc84d9595f1dcddd76d7138",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -32758,7 +32758,7 @@
               "originalPosition": 38,
               "body": "```suggestion\r\n            do not cause a request to be <xref target=\"malformed\" format=\"none\">malformed</xref>\r\n```",
               "createdAt": "2021-04-27T12:48:02Z",
-              "updatedAt": "2021-04-28T07:57:55Z"
+              "updatedAt": "2021-04-29T04:40:27Z"
             }
           ]
         },
@@ -32778,7 +32778,7 @@
               "originalPosition": 11,
               "body": "obvious observation but this sentence loses the \"field\" subject, which seems worse than the previous version",
               "createdAt": "2021-04-27T12:51:25Z",
-              "updatedAt": "2021-04-28T07:57:55Z"
+              "updatedAt": "2021-04-29T04:40:27Z"
             }
           ]
         },
@@ -32798,7 +32798,7 @@
               "originalPosition": 58,
               "body": "It is not acceptable to not have a clear ABNF definition of acceptable fields.    I am not opposed changing what the characters are, but any new definition must be supported by new ABNF that defines what is and is not acceptable.",
               "createdAt": "2021-04-27T22:43:12Z",
-              "updatedAt": "2021-04-28T07:57:55Z"
+              "updatedAt": "2021-04-29T04:40:27Z"
             }
           ]
         },
@@ -32818,7 +32818,7 @@
               "originalPosition": 58,
               "body": "Can somebody remind me about *why* we are discussing a different set of chars compared to base HTTP (except for the special case of pseudo header fields)?",
               "createdAt": "2021-04-28T03:22:59Z",
-              "updatedAt": "2021-04-28T07:57:55Z"
+              "updatedAt": "2021-04-29T04:40:27Z"
             }
           ]
         },
@@ -32838,7 +32838,67 @@
               "originalPosition": 58,
               "body": "The original rules (which used the ABNF) were considered onerous by some intermediaries.  Apparently some implementations pass stuff that doesn't conform to the grammar, as previously mandated.  The thrust of the change here was to align with that, requiring that the HTTP/2 parts of implementations only do what is necessary for security.  That doesn't mean that the things that are conveyed are valid HTTP; that's a determination that any endpoint that processes the fields needs to determine.  Consequently it might be that certain fields can be ignored without causing the entire message to be considered malformed.",
               "createdAt": "2021-04-28T07:56:46Z",
-              "updatedAt": "2021-04-28T07:57:55Z"
+              "updatedAt": "2021-04-29T04:40:27Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ3NzU1MDc0",
+          "commit": {
+            "abbreviatedOid": "995fbf0"
+          },
+          "author": "mnot",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-29T01:11:38Z",
+          "updatedAt": "2021-04-29T01:11:38Z",
+          "comments": [
+            {
+              "originalPosition": 58,
+              "body": "Perhaps what we need here is encouragement to reject field-names that don't conform to the ABNF, but not a requirement, noting that some intermediaries pass them through.",
+              "createdAt": "2021-04-29T01:11:38Z",
+              "updatedAt": "2021-04-29T04:40:27Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ3NzgxMDM2",
+          "commit": {
+            "abbreviatedOid": "995fbf0"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-29T02:48:09Z",
+          "updatedAt": "2021-04-29T02:48:10Z",
+          "comments": [
+            {
+              "originalPosition": 58,
+              "body": "\"An intermediary can reject fields that contain invalid field names or values for other reasons, in particular those that do not conform to the HTTP ABNF grammar (in Section X of Y).  Some intermediaries do not validate fields and so could pass messages that contain invalid field names or values.\"\r\n\r\n?",
+              "createdAt": "2021-04-29T02:48:10Z",
+              "updatedAt": "2021-04-29T04:40:27Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ3ODAzOTYy",
+          "commit": {
+            "abbreviatedOid": "995fbf0"
+          },
+          "author": "gregw",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-29T04:16:55Z",
+          "updatedAt": "2021-04-29T04:16:55Z",
+          "comments": [
+            {
+              "originalPosition": 58,
+              "body": "@martinthomson That text well describes what can happen, but it doesn't well describe what an implementation MUST do when that situation occurs.   We need a definition of a function from String to Boolean that will tell us if the field is malformed or not.   Currently that function is defined in ABNF.   If there is a need to relax that definition somewhat, then OK,  but please give us alternative ABNF that clearly defines what strings are acceptable and which are not.   I don't want to have to have a major in interpretive prose to understand what field names are malformed.",
+              "createdAt": "2021-04-29T04:16:55Z",
+              "updatedAt": "2021-04-29T04:40:27Z"
             }
           ]
         }
