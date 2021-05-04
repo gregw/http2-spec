@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-05-02T01:08:11.197076+00:00",
+  "timestamp": "2021-05-04T00:58:55.587807+00:00",
   "repo": "httpwg/http2-spec",
   "labels": [
     {
@@ -30151,7 +30151,7 @@
       "labels": [],
       "body": "This doesn't completely remove it, but it only keeps those pieces\r\nnecessary for interoperability with existing implementations: the rules\r\nfor sending PRIORITY frames in different stream states, the format of\r\nthe HEADERS and PRIORITY frames, and the error handling.\r\n\r\nIt replaces the exposition about how priority works with a deprecation\r\nnotice and the little advice that we currently understand to be\r\naccurate.\r\n\r\nCloses #773.",
       "createdAt": "2020-12-22T00:46:08Z",
-      "updatedAt": "2021-04-23T07:57:42Z",
+      "updatedAt": "2021-05-03T19:17:04Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "b58675886c14a5c3929d459fe7565e9d5c1e9b30",
