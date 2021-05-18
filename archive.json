@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-05-04T00:58:55.587807+00:00",
+  "timestamp": "2021-05-18T01:08:52.961682+00:00",
   "repo": "httpwg/http2-spec",
   "labels": [
     {
@@ -30151,13 +30151,13 @@
       "labels": [],
       "body": "This doesn't completely remove it, but it only keeps those pieces\r\nnecessary for interoperability with existing implementations: the rules\r\nfor sending PRIORITY frames in different stream states, the format of\r\nthe HEADERS and PRIORITY frames, and the error handling.\r\n\r\nIt replaces the exposition about how priority works with a deprecation\r\nnotice and the little advice that we currently understand to be\r\naccurate.\r\n\r\nCloses #773.",
       "createdAt": "2020-12-22T00:46:08Z",
-      "updatedAt": "2021-05-03T19:17:04Z",
+      "updatedAt": "2021-05-18T00:15:13Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "b58675886c14a5c3929d459fe7565e9d5c1e9b30",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "prioritectomy",
-      "headRefOid": "aa939debb39f6f4f8d901eb4fc7f06337185e04a",
+      "headRefOid": "aee015c94d0f6d19d2654b6d439d9921df495b25",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -30399,6 +30399,39 @@
           "body": "These address all my points nicely, thanks!",
           "createdAt": "2021-04-23T07:38:49Z",
           "updatedAt": "2021-04-23T07:38:49Z",
+          "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjUwNjQ0ODAx",
+          "commit": {
+            "abbreviatedOid": "aa939de"
+          },
+          "author": "ianswett",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-05-03T19:16:09Z",
+          "updatedAt": "2021-05-17T13:42:26Z",
+          "comments": [
+            {
+              "originalPosition": 21,
+              "body": "Is this first sentence still useful, given priority is listed in the next sentence?",
+              "createdAt": "2021-05-03T19:16:09Z",
+              "updatedAt": "2021-05-17T13:42:26Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjYwOTk2MzY4",
+          "commit": {
+            "abbreviatedOid": "aa939de"
+          },
+          "author": "LPardue",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-05-17T13:54:35Z",
+          "updatedAt": "2021-05-17T13:54:35Z",
           "comments": []
         }
       ]
@@ -31830,7 +31863,7 @@
       "labels": [],
       "body": "HTTP/1.1 to HTTP/2 Upgrade was never widely deployed and has no\r\nparticular defenders. This change removes the text explaining and\r\ndefining the mechanism.\r\n\r\nResolves #772.\r\n\r\nThis change still requires discussion on the mailing list.",
       "createdAt": "2021-02-17T17:50:19Z",
-      "updatedAt": "2021-04-22T12:51:10Z",
+      "updatedAt": "2021-05-17T01:11:59Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
@@ -31946,6 +31979,19 @@
           "body": "",
           "createdAt": "2021-04-22T12:51:10Z",
           "updatedAt": "2021-04-22T12:51:10Z",
+          "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjYwNDkxMzUx",
+          "commit": {
+            "abbreviatedOid": "51bc906"
+          },
+          "author": "ianswett",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-05-17T01:11:59Z",
+          "updatedAt": "2021-05-17T01:11:59Z",
           "comments": []
         }
       ]
