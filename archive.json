@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-05-18T01:08:52.961682+00:00",
+  "timestamp": "2021-05-20T01:02:30.480726+00:00",
   "repo": "httpwg/http2-spec",
   "labels": [
     {
@@ -30151,13 +30151,13 @@
       "labels": [],
       "body": "This doesn't completely remove it, but it only keeps those pieces\r\nnecessary for interoperability with existing implementations: the rules\r\nfor sending PRIORITY frames in different stream states, the format of\r\nthe HEADERS and PRIORITY frames, and the error handling.\r\n\r\nIt replaces the exposition about how priority works with a deprecation\r\nnotice and the little advice that we currently understand to be\r\naccurate.\r\n\r\nCloses #773.",
       "createdAt": "2020-12-22T00:46:08Z",
-      "updatedAt": "2021-05-18T00:15:13Z",
+      "updatedAt": "2021-05-19T00:06:50Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "b58675886c14a5c3929d459fe7565e9d5c1e9b30",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "prioritectomy",
-      "headRefOid": "aee015c94d0f6d19d2654b6d439d9921df495b25",
+      "headRefOid": "f84bca1dbd080d03025a2f9462118924fcaee050",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -30433,6 +30433,26 @@
           "createdAt": "2021-05-17T13:54:35Z",
           "updatedAt": "2021-05-17T13:54:35Z",
           "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjYyMjAzNjMx",
+          "commit": {
+            "abbreviatedOid": "aee015c"
+          },
+          "author": "birenroy",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-18T15:00:44Z",
+          "updatedAt": "2021-05-18T15:04:28Z",
+          "comments": [
+            {
+              "originalPosition": 88,
+              "body": "s/parallism/parallelism/",
+              "createdAt": "2021-05-18T15:00:44Z",
+              "updatedAt": "2021-05-18T15:04:28Z"
+            }
+          ]
         }
       ]
     },
@@ -31863,7 +31883,7 @@
       "labels": [],
       "body": "HTTP/1.1 to HTTP/2 Upgrade was never widely deployed and has no\r\nparticular defenders. This change removes the text explaining and\r\ndefining the mechanism.\r\n\r\nResolves #772.\r\n\r\nThis change still requires discussion on the mailing list.",
       "createdAt": "2021-02-17T17:50:19Z",
-      "updatedAt": "2021-05-17T01:11:59Z",
+      "updatedAt": "2021-05-19T07:24:51Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
@@ -31888,6 +31908,27 @@
           "body": "Ok, I've replaced the registrations with tombstones, this is ready for another go around.",
           "createdAt": "2021-02-23T11:02:06Z",
           "updatedAt": "2021-02-23T11:02:06Z"
+        },
+        {
+          "author": "mnot",
+          "authorAssociation": "MEMBER",
+          "body": "It would be good to more explicitly say that the upgrade mechanism is NOT RECOMMENDED, both because we're encrypting everything and because of the [new attack vectors](https://labs.bishopfox.com/tech-blog/h2c-smuggling-request-smuggling-via-http/2-cleartext-h2c) it enables (even if they're mostly shoddy implementation, it's more surface area).",
+          "createdAt": "2021-05-19T05:10:33Z",
+          "updatedAt": "2021-05-19T05:10:33Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Sounds like a reasonable addition, but it might be better to track that with a separate change.",
+          "createdAt": "2021-05-19T06:32:37Z",
+          "updatedAt": "2021-05-19T06:32:37Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Happy to add that here or make a separate change, either way.",
+          "createdAt": "2021-05-19T07:24:51Z",
+          "updatedAt": "2021-05-19T07:24:51Z"
         }
       ],
       "reviews": [
@@ -32734,7 +32775,7 @@
       "labels": [],
       "body": "This encodes the conclusions from interim discussions:\r\n\r\n1. CR, LF, and NUL cannot appear anywhere in field names or values.\r\n2. SP and HTAB cannot appear at the start or end of field names or\r\nvalues.\r\n3. COLON cannot appear anywhere in a field name, except for the colon at\r\nthe start of a pseudo-header field name.\r\n\r\nThe strong requirements about validating fields according to ABNF has\r\nbeen replaced.\r\n\r\nThe text is clearer about how the pieces fit together: it is HPACK that\r\nallows any octet, whereas HTTP/2 makes certain choices invalid.\r\n\r\nCloses #815.",
       "createdAt": "2021-04-23T07:53:05Z",
-      "updatedAt": "2021-04-29T04:40:27Z",
+      "updatedAt": "2021-05-20T00:58:20Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
@@ -32945,6 +32986,58 @@
               "body": "@martinthomson That text well describes what can happen, but it doesn't well describe what an implementation MUST do when that situation occurs.   We need a definition of a function from String to Boolean that will tell us if the field is malformed or not.   Currently that function is defined in ABNF.   If there is a need to relax that definition somewhat, then OK,  but please give us alternative ABNF that clearly defines what strings are acceptable and which are not.   I don't want to have to have a major in interpretive prose to understand what field names are malformed.",
               "createdAt": "2021-04-29T04:16:55Z",
               "updatedAt": "2021-04-29T04:40:27Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjYyODIwNTMz",
+          "commit": {
+            "abbreviatedOid": "bf4686b"
+          },
+          "author": "mnot",
+          "authorAssociation": "MEMBER",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2021-05-19T06:48:46Z",
+          "updatedAt": "2021-05-19T06:53:36Z",
+          "comments": [
+            {
+              "originalPosition": 15,
+              "body": "```suggestion\r\n            HPACK can carry any octet, fields are not valid in the following cases:\r\n```\r\n\r\nUse of 'value' is a bit confusing here",
+              "createdAt": "2021-05-19T06:48:46Z",
+              "updatedAt": "2021-05-19T06:53:36Z"
+            },
+            {
+              "originalPosition": 31,
+              "body": "I think we need to say more about field names, specifically:\r\n- internal whitespace\r\n- control characters\r\n\r\nSee: https://github.com/neex/http2smugl",
+              "createdAt": "2021-05-19T06:52:27Z",
+              "updatedAt": "2021-05-19T06:53:36Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQ3ODA5MTg3",
+          "commit": {
+            "abbreviatedOid": "995fbf0"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-04-29T04:36:47Z",
+          "updatedAt": "2021-05-20T00:58:20Z",
+          "comments": [
+            {
+              "originalPosition": 58,
+              "body": "I'm not seeing this particular text as being particularly hard to understand.  Certainly not relative to the rest of the specification.\r\n\r\nWhat is required when the situation occurs is what is defined for all [malformed messages](https://httpwg.org/http2-spec/draft-ietf-httpbis-http2bis.html#malformed).\r\n\r\nFWIW, this should be [easy to implement](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=fad0c7b1a265c82d016d762a80f9be3b); easier than the full ABNF.  Defining a narrower ABNF might imply validity where there is none though.  We're not defining what is valid, which is what ABNF is usually turned toward, but defining what validation MUST be performed.",
+              "createdAt": "2021-04-29T04:36:47Z",
+              "updatedAt": "2021-05-20T00:58:20Z"
+            },
+            {
+              "originalPosition": 31,
+              "body": "@mnot, can you make a very specific suggestion for what to add here?  Do we just say that 0x00-0x20 are not allowed in field names?",
+              "createdAt": "2021-05-20T00:58:10Z",
+              "updatedAt": "2021-05-20T00:58:20Z"
             }
           ]
         }
