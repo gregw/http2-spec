@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-05-20T01:02:30.480726+00:00",
+  "timestamp": "2021-05-23T01:14:12.774114+00:00",
   "repo": "httpwg/http2-spec",
   "labels": [
     {
@@ -19386,6 +19386,22 @@
       "updatedAt": "2021-04-22T08:52:29Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 849,
+      "id": "MDU6SXNzdWU4OTY2NzczMDg=",
+      "title": "Is Content-Length acceptable on CONNECT request?",
+      "url": "https://github.com/httpwg/http2-spec/issues/849",
+      "state": "OPEN",
+      "author": "LPardue",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Up-to-date HTTP core specs say in https://httpwg.org/http-core/draft-ietf-httpbis-semantics-latest.html#rfc.section.9.3.6.p.12\r\n\r\n> A server MUST NOT send any Transfer-Encoding or Content-Length header fields in a 2xx (Successful) response to CONNECT. A client MUST ignore any Content-Length or Transfer-Encoding header fields received in a successful response to CONNECT.\r\n> \r\n> A CONNECT request message does not have content. The interpretation of and allowability of data sent after the header section of the CONNECT request message is specific to the version of HTTP in use.\r\n\r\nBut https://datatracker.ietf.org/doc/html/rfc7540#section-8.3 makes it difficult to see if Content-Length is allowed on request.\r\n\r\nIt's clear that RFC7540 considers CONNECT requests to have no content. And it's clear that for normal request that if the sum of DATA frames don't match the sum Content-Length then its an error. But it is unclear if the server should quickly reject CONNECT requests that contain \"Content-Length: N\" (for N > 0), or how they should deal with \"Content-Length: 0\".",
+      "createdAt": "2021-05-20T11:24:27Z",
+      "updatedAt": "2021-05-20T11:24:27Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
@@ -32775,13 +32791,13 @@
       "labels": [],
       "body": "This encodes the conclusions from interim discussions:\r\n\r\n1. CR, LF, and NUL cannot appear anywhere in field names or values.\r\n2. SP and HTAB cannot appear at the start or end of field names or\r\nvalues.\r\n3. COLON cannot appear anywhere in a field name, except for the colon at\r\nthe start of a pseudo-header field name.\r\n\r\nThe strong requirements about validating fields according to ABNF has\r\nbeen replaced.\r\n\r\nThe text is clearer about how the pieces fit together: it is HPACK that\r\nallows any octet, whereas HTTP/2 makes certain choices invalid.\r\n\r\nCloses #815.",
       "createdAt": "2021-04-23T07:53:05Z",
-      "updatedAt": "2021-05-20T00:58:20Z",
+      "updatedAt": "2021-05-22T11:54:04Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "allowed-characters",
-      "headRefOid": "bf4686b6b90897045bc84d9595f1dcddd76d7138",
+      "headRefOid": "4b361c02f3c2d3a2152c372855a7d0d9bd8fa95e",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -32800,6 +32816,13 @@
           "body": "This was intentional, but it can be revised by expanding the set of characters we prohibit.  I had imagined that this would not be different from HTTP/1.1 where \"Foo\\tBar: ?1\" might parse, but is not valid in the same way that \"Foo\\<BEL>Bar: ?1\" is not.  I thought that we had agreed that a close policing of the field name grammar was not required from HTTP/2 implementations.",
           "createdAt": "2021-04-27T10:47:44Z",
           "updatedAt": "2021-04-27T10:47:44Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@mnot, take another look.  I've refactored your suggestion.",
+          "createdAt": "2021-05-20T04:27:06Z",
+          "updatedAt": "2021-05-20T04:27:06Z"
         }
       ],
       "reviews": [
@@ -33029,15 +33052,201 @@
           "comments": [
             {
               "originalPosition": 58,
-              "body": "I'm not seeing this particular text as being particularly hard to understand.  Certainly not relative to the rest of the specification.\r\n\r\nWhat is required when the situation occurs is what is defined for all [malformed messages](https://httpwg.org/http2-spec/draft-ietf-httpbis-http2bis.html#malformed).\r\n\r\nFWIW, this should be [easy to implement](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=fad0c7b1a265c82d016d762a80f9be3b); easier than the full ABNF.  Defining a narrower ABNF might imply validity where there is none though.  We're not defining what is valid, which is what ABNF is usually turned toward, but defining what validation MUST be performed.",
+              "body": "I'm not seeing this particular text as being particularly hard to understand.  Certainly not relative to the rest of the specification.\r\n\r\nWhat is required when the situation occurs is what is defined for all [malformed messages](https://httpwg.org/http2-spec/draft-ietf-httpbis-http2bis.html#malformed).\r\n\r\nFWIW, this should be [easy to implement](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=fad0c7b1a265c82d016d762a80f9be3b); easier than the full ABNF.  Defining a narrower ABNF might imply validity where there is none though.  We're not defining what is valid, which is what ABNF is usually turned toward, but defining what validation MUST be performed. ... even when you aren't processing fields.",
               "createdAt": "2021-04-29T04:36:47Z",
-              "updatedAt": "2021-05-20T00:58:20Z"
+              "updatedAt": "2021-05-20T04:26:48Z"
             },
             {
               "originalPosition": 31,
               "body": "@mnot, can you make a very specific suggestion for what to add here?  Do we just say that 0x00-0x20 are not allowed in field names?",
               "createdAt": "2021-05-20T00:58:10Z",
               "updatedAt": "2021-05-20T00:58:20Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjYzOTIwNTA5",
+          "commit": {
+            "abbreviatedOid": "bf4686b"
+          },
+          "author": "mnot",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-20T03:56:18Z",
+          "updatedAt": "2021-05-20T03:56:19Z",
+          "comments": [
+            {
+              "originalPosition": 30,
+              "body": "```suggestion\r\n            <li>\r\n              A field name MUST NOT contain characters in the ASCII range 0x00-0x20, or 0x7F.\r\n            </li>\r\n            <li>\r\n              A field value MUST NOT start or end with a whitespace character (SP or HTAB,\r\n              ASCII 0x20 or 0x9).\r\n            </li>            \r\n```",
+              "createdAt": "2021-05-20T03:56:18Z",
+              "updatedAt": "2021-05-20T03:56:19Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjYzOTIyOTQ1",
+          "commit": {
+            "abbreviatedOid": "bf4686b"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-20T04:03:46Z",
+          "updatedAt": "2021-05-20T04:03:50Z",
+          "comments": [
+            {
+              "originalPosition": 30,
+              "body": "Thanks Mark.  I can work with that (I might need to reconcile some of the items here with this, but it's doable.  I'll also clear it with the list in case someone disagrees.",
+              "createdAt": "2021-05-20T04:03:46Z",
+              "updatedAt": "2021-05-20T04:03:50Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjYzOTMyMDg2",
+          "commit": {
+            "abbreviatedOid": "4b361c0"
+          },
+          "author": "mnot",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-20T04:31:21Z",
+          "updatedAt": "2021-05-20T04:31:21Z",
+          "comments": [
+            {
+              "originalPosition": 31,
+              "body": "LGTM",
+              "createdAt": "2021-05-20T04:31:21Z",
+              "updatedAt": "2021-05-20T04:31:21Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjYzOTMyMTI0",
+          "commit": {
+            "abbreviatedOid": "4b361c0"
+          },
+          "author": "mnot",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-05-20T04:31:26Z",
+          "updatedAt": "2021-05-20T04:31:26Z",
+          "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjYzOTU4MjYx",
+          "commit": {
+            "abbreviatedOid": "4b361c0"
+          },
+          "author": "gregw",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-20T05:37:16Z",
+          "updatedAt": "2021-05-20T05:37:16Z",
+          "comments": [
+            {
+              "originalPosition": 58,
+              "body": "the proposed text now does refer to the ABNF.  Edit: the resolve button is not being offered... but consider this resolved for me.",
+              "createdAt": "2021-05-20T05:37:16Z",
+              "updatedAt": "2021-05-20T05:38:12Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY0MDA3MzM2",
+          "commit": {
+            "abbreviatedOid": "4b361c0"
+          },
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-05-20T06:59:17Z",
+          "updatedAt": "2021-05-20T06:59:17Z",
+          "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY1MjI3MjMz",
+          "commit": {
+            "abbreviatedOid": "4b361c0"
+          },
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2021-05-21T08:40:21Z",
+          "updatedAt": "2021-05-21T08:40:46Z",
+          "comments": [
+            {
+              "originalPosition": 28,
+              "body": "This seems to repeat a requirement from above.",
+              "createdAt": "2021-05-21T08:40:21Z",
+              "updatedAt": "2021-05-21T08:40:46Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY1MjI4MjAz",
+          "commit": {
+            "abbreviatedOid": "4b361c0"
+          },
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-21T08:41:26Z",
+          "updatedAt": "2021-05-21T08:41:27Z",
+          "comments": [
+            {
+              "originalPosition": 28,
+              "body": "FWIW, it's also not clear to me why we would allow whitespace *inside* the field name...",
+              "createdAt": "2021-05-21T08:41:26Z",
+              "updatedAt": "2021-05-21T08:41:27Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY2MTc1NjEw",
+          "commit": {
+            "abbreviatedOid": "4b361c0"
+          },
+          "author": "mnot",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-22T11:42:49Z",
+          "updatedAt": "2021-05-22T11:42:49Z",
+          "comments": [
+            {
+              "originalPosition": 28,
+              "body": "Where does it say those things?",
+              "createdAt": "2021-05-22T11:42:49Z",
+              "updatedAt": "2021-05-22T11:42:49Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY2MTc2Mjkw",
+          "commit": {
+            "abbreviatedOid": "4b361c0"
+          },
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-22T11:54:04Z",
+          "updatedAt": "2021-05-22T11:54:04Z",
+          "comments": [
+            {
+              "originalPosition": 28,
+              "body": "It does not. I was confused because of the statement about field *values*. Sorry.",
+              "createdAt": "2021-05-22T11:54:04Z",
+              "updatedAt": "2021-05-22T11:54:04Z"
             }
           ]
         }
