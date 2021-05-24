@@ -1085,7 +1085,10 @@ Table of Contents
 
    If an endpoint detects multiple different errors, it MAY choose to
    report any one of those errors.  If a frame causes a connection
-   error, that error MUST be reported.
+   error, that error MUST be reported.  Additionally, an endpoint MAY
+   use any applicable error code when it detects an error condition; a
+   generic error code (such as PROTOCOL_ERROR or INTERNAL_ERROR) can
+   always be used in place of more specific error codes.
 
 5.4.1.  Connection Error Handling
 
