@@ -91,12 +91,9 @@ Table of Contents
      5.2.  Flow Control
        5.2.1.  Flow-Control Principles
        5.2.2.  Appropriate Use of Flow Control
-     5.3.  Stream Priority
-       5.3.1.  Stream Dependencies
-       5.3.2.  Dependency Weighting
-       5.3.3.  Reprioritization
-       5.3.4.  Prioritization State Management
-       5.3.5.  Default Priorities
+     5.3.  Prioritization
+       5.3.1.  Background of Priority in HTTP/2
+       5.3.2.  Priority Signaling in this Document
      5.4.  Error Handling
        5.4.1.  Connection Error Handling
        5.4.2.  Stream Error Handling
@@ -414,11 +411,10 @@ Table of Contents
    preface (Section 3.5), which includes a SETTINGS frame.
 
    The HTTP/1.1 request that is sent prior to upgrade is assigned a
-   stream identifier of 1 (see Section 5.1.1) with default priority
-   values (Section 5.3.5).  Stream 1 is implicitly "half-closed" from
-   the client toward the server (see Section 5.1), since the request is
-   completed as an HTTP/1.1 request.  After commencing the HTTP/2
-   connection, stream 1 is used for the response.
+   stream identifier of 1 (see Section 5.1.1).  Stream 1 is implicitly
+   "half-closed" from the client toward the server (see Section 5.1),
+   since the request is completed as an HTTP/1.1 request.  After
+   commencing the HTTP/2 connection, stream 1 is used for the response.
 
 3.2.1.  HTTP2-Settings Header Field
 
@@ -836,10 +832,8 @@ Table of Contents
       *  Either endpoint can send a RST_STREAM frame to cause the stream
          to become "closed".  This releases the stream reservation.
 
-      An endpoint MAY send a PRIORITY frame in this state to
-      reprioritize the reserved stream.  An endpoint MUST NOT send any
-      type of frame other than RST_STREAM, WINDOW_UPDATE, or PRIORITY in
-      this state.
+      An endpoint MUST NOT send any type of frame other than RST_STREAM,
+      WINDOW_UPDATE, or PRIORITY in this state.
 
       Receiving any type of frame other than HEADERS, RST_STREAM, or
       PRIORITY on a stream in this state MUST be treated as a connection
@@ -874,8 +868,7 @@ Table of Contents
       arrive for a short period after a frame bearing the END_STREAM
       flag is sent.
 
-      PRIORITY frames received in this state are used to reprioritize
-      streams that depend on the identified stream.
+      PRIORITY frames can be received in this state.
 
    half-closed (remote):  A stream that is "half-closed (remote)" is no
       longer being used by the peer to send frames.  In this state, an
@@ -917,10 +910,7 @@ Table of Contents
       time after sending END_STREAM as a connection error
       (Section 5.4.1) of type PROTOCOL_ERROR.
 
-      PRIORITY frames can be sent on closed streams to prioritize
-      streams that are dependent on the closed stream.  Endpoints SHOULD
-      process PRIORITY frames, though they can be ignored if the stream
-      has been removed from the dependency tree (see Section 5.3.4).
+      PRIORITY frames can be sent on closed streams.
 
       If this state is reached as a result of sending a RST_STREAM
       frame, the peer that receives the RST_STREAM might have already
@@ -1076,11 +1066,10 @@ Table of Contents
        Implementations are able to select any algorithm that suits their
        needs.
 
-   Implementations are also responsible for managing how requests and
-   responses are sent based on priority, choosing how to avoid head-of-
-   line blocking for requests, and managing the creation of new streams.
-   Algorithm choices for these could interact with any flow-control
-   algorithm.
+   Implementations are also responsible for prioritizing the sending of
+   requests and responses, choosing how to avoid head-of-line blocking
+   for requests, and managing the creation of new streams.  Algorithm
+   choices for these could interact with any flow-control algorithm.
 
 5.2.2.  Appropriate Use of Flow Control
 
@@ -1110,211 +1099,69 @@ Table of Contents
    timely fashion.  Failure to do so could lead to a deadlock when
    critical frames, such as WINDOW_UPDATE, are not read and acted upon.
 
-5.3.  Stream Priority
+5.3.  Prioritization
 
-   A client can assign a priority for a new stream by including
-   prioritization information in the HEADERS frame (Section 6.2) that
-   opens the stream.  At any other time, the PRIORITY frame
-   (Section 6.3) can be used to change the priority of a stream.
+   In a multiplexed protocol like HTTP/2, prioritizing allocation of
+   bandwidth and computation resources to streams can be critical to
+   attaining good performance.  A poor prioritization scheme can result
+   in HTTP/2 providing poor performance.  With no parallelism at the TCP
+   layer, performance could be significantly worse than HTTP/1.1.
 
-   The purpose of prioritization is to allow an endpoint to express how
-   it would prefer its peer to allocate resources when managing
-   concurrent streams.  Most importantly, priority can be used to select
-   streams for transmitting frames when there is limited capacity for
-   sending.
+   A good prioritization scheme benefits from the application of
+   contextual knowledge such as the content of resources, how resources
+   are interrelated, and how those resources will be used by a peer.  In
+   particular, clients can possess knowledge about the priority of
+   requests that is relevant to server prioritization.  In those cases,
+   having clients provide priority information can improve performance.
 
-   Streams can be prioritized by marking them as dependent on the
-   completion of other streams (Section 5.3.1).  Each dependency is
-   assigned a relative weight, a number that is used to determine the
-   relative proportion of available resources that are assigned to
-   streams dependent on the same stream.
+5.3.1.  Background of Priority in HTTP/2
 
-   Explicitly setting the priority for a stream is input to a
-   prioritization process.  It does not guarantee any particular
-   processing or transmission order for the stream relative to any other
-   stream.  An endpoint cannot force a peer to process concurrent
-   streams in a particular order using priority.  Expressing priority is
-   therefore only a suggestion.
+   HTTP/2 included a rich system for signaling priority of requests.
+   However, this system proved to be complex and it was not uniformly
+   implemented.
 
-   Prioritization information can be omitted from messages.  Defaults
-   are used prior to any explicit values being provided (Section 5.3.5).
+   The flexible scheme meant that it was possible for clients to express
+   priorities in very different ways, with little consistency in the
+   approaches that were adopted.  For servers, implementing generic
+   support for the scheme was complex.  Implementation of priorities was
+   uneven in both clients and servers.  Many server deployments ignored
+   client signals when prioritizing their handling of requests.
 
-   The information that an endpoint maintains for stream priority is
-   separate from other state.  Importantly, this includes stream states
-   (Section 5.1).  A stream in any state can have its priority changed
-   with a PRIORITY frame.  The state of a stream is not changed as a
-   result of changing its priority.  The number of streams for which
-   state is remembered is at the discretion of an endpoint, see
-   Section 5.3.4 for details.
+   In short, the prioritization signaling in RFC7540 [RFC7540] was not
+   successful.
 
-5.3.1.  Stream Dependencies
+5.3.2.  Priority Signaling in this Document
 
-   Each stream can be given an explicit dependency on another stream.
-   Including a dependency expresses a preference to allocate resources
-   to the identified stream rather than to the dependent stream.
+   This update to HTTP/2 deprecates the priority signaling defined in
+   RFC 7540 [RFC7540].  The bulk of the text related to priority signals
+   is not included in this document.  The description of frame fields
+   and some of the mandatory handling is retained to ensure that
+   implementations of this document remain interoperable with
+   implementations that use the priority signaling described in RFC
+   7540.
 
-   A stream that is not dependent on any other stream is given a stream
-   dependency of 0x0.  In other words, the non-existent stream 0 forms
-   the root of the tree.
+   A thorough description of the RFC 7540 priority scheme remains in
+   Section 5.3 of [RFC7540].
 
-   A stream that depends on another stream is a dependent stream.  The
-   stream upon which a stream is dependent is a parent stream.  A
-   dependency on a stream that is not currently in the tree -- such as a
-   stream in the "idle" state -- results in that stream being given a
-   default priority (Section 5.3.5).
+   Signaling priority information is necessary to attain good
+   performance in many cases.  Where signaling priority information is
+   important, endpoints are encouraged to use an alternative scheme,
+   such as [I-D.ietf-httpbis-priority].
 
-   When assigning a dependency on another stream, the stream is added as
-   a new dependency of the parent stream.  Dependent streams that share
-   the same parent are not ordered with respect to each other.  For
-   example, if streams B and C are dependent on stream A, and if stream
-   D is created with a dependency on stream A, this results in a
-   dependency order of A followed by B, C, and D in any order.
+   Though the priority signaling from RFC 7540 was not widely adopted,
+   the information it provides can still be useful in the absence of
+   better information.  Endpoints that receive priority signals in
+   HEADERS or PRIORITY frames can benefit from applying that
+   information.  In particular, implementations that consume these
+   signals would not benefit from discarding these priority signals in
+   the absence of alternatives.
 
-       A                 A
-      / \      ==>      /|\
-     B   C             B D C
-
-              Figure 3: Example of Default Dependency Creation
-
-   An exclusive flag allows for the insertion of a new level of
-   dependencies.  The exclusive flag causes the stream to become the
-   sole dependency of its parent stream, causing other dependencies to
-   become dependent on the exclusive stream.  In the previous example,
-   if stream D is created with an exclusive dependency on stream A, this
-   results in D becoming the dependency parent of B and C.
-
-                         A
-       A                 |
-      / \      ==>       D
-     B   C              / \
-                       B   C
-
-             Figure 4: Example of Exclusive Dependency Creation
-
-   Inside the dependency tree, a dependent stream SHOULD only be
-   allocated resources if either all of the streams that it depends on
-   (the chain of parent streams up to 0x0) are closed or it is not
-   possible to make progress on them.
-
-   A stream cannot depend on itself.  An endpoint MUST treat this as a
-   stream error (Section 5.4.2) of type PROTOCOL_ERROR.
-
-5.3.2.  Dependency Weighting
-
-   All dependent streams are allocated an integer weight between 1 and
-   256 (inclusive).
-
-   Streams with the same parent SHOULD be allocated resources
-   proportionally based on their weight.  Thus, if stream B depends on
-   stream A with weight 4, stream C depends on stream A with weight 12,
-   and no progress can be made on stream A, stream B ideally receives
-   one-third of the resources allocated to stream C.
-
-5.3.3.  Reprioritization
-
-   Stream priorities are changed using the PRIORITY frame.  Setting a
-   dependency causes a stream to become dependent on the identified
-   parent stream.
-
-   Dependent streams move with their parent stream if the parent is
-   reprioritized.  Setting a dependency with the exclusive flag for a
-   reprioritized stream causes all the dependencies of the new parent
-   stream to become dependent on the reprioritized stream.
-
-   If a stream is made dependent on one of its own dependencies, the
-   formerly dependent stream is first moved to be dependent on the
-   reprioritized stream's previous parent.  The moved dependency retains
-   its weight.
-
-   For example, consider an original dependency tree where B and C
-   depend on A, D and E depend on C, and F depends on D.  If A is made
-   dependent on D, then D takes the place of A.  All other dependency
-   relationships stay the same, except for F, which becomes dependent on
-   A if the reprioritization is exclusive.
-
-       x                x                x                 x
-       |               / \               |                 |
-       A              D   A              D                 D
-      / \            /   / \            / \                |
-     B   C     ==>  F   B   C   ==>    F   A       OR      A
-        / \                 |             / \             /|\
-       D   E                E            B   C           B C F
-       |                                     |             |
-       F                                     E             E
-                  (intermediate)   (non-exclusive)    (exclusive)
-
-                 Figure 5: Example of Dependency Reordering
-
-5.3.4.  Prioritization State Management
-
-   When a stream is removed from the dependency tree, its dependencies
-   can be moved to become dependent on the parent of the closed stream.
-   The weights of new dependencies are recalculated by distributing the
-   weight of the dependency of the closed stream proportionally based on
-   the weights of its dependencies.
-
-   Streams that are removed from the dependency tree cause some
-   prioritization information to be lost.  Resources are shared between
-   streams with the same parent stream, which means that if a stream in
-   that set closes or becomes blocked, any spare capacity allocated to a
-   stream is distributed to the immediate neighbors of the stream.
-   However, if the common dependency is removed from the tree, those
-   streams share resources with streams at the next highest level.
-
-   For example, assume streams A and B share a parent, and streams C and
-   D both depend on stream A.  Prior to the removal of stream A, if
-   streams A and D are unable to proceed, then stream C receives all the
-   resources dedicated to stream A.  If stream A is removed from the
-   tree, the weight of stream A is divided between streams C and D.  If
-   stream D is still unable to proceed, this results in stream C
-   receiving a reduced proportion of resources.  For equal starting
-   weights, C receives one third, rather than one half, of available
-   resources.
-
-   It is possible for a stream to become closed while prioritization
-   information that creates a dependency on that stream is in transit.
-   If a stream identified in a dependency has no associated priority
-   information, then the dependent stream is instead assigned a default
-   priority (Section 5.3.5).  This potentially creates suboptimal
-   prioritization, since the stream could be given a priority that is
-   different from what is intended.
-
-   To avoid these problems, an endpoint SHOULD retain stream
-   prioritization state for a period after streams become closed.  The
-   longer state is retained, the lower the chance that streams are
-   assigned incorrect or default priority values.
-
-   Similarly, streams that are in the "idle" state can be assigned
-   priority or become a parent of other streams.  This allows for the
-   creation of a grouping node in the dependency tree, which enables
-   more flexible expressions of priority.  Idle streams begin with a
-   default priority (Section 5.3.5).
-
-   The retention of priority information for streams that are not
-   counted toward the limit set by SETTINGS_MAX_CONCURRENT_STREAMS could
-   create a large state burden for an endpoint.  Therefore, the amount
-   of prioritization state that is retained MAY be limited.
-
-   The amount of additional state an endpoint maintains for
-   prioritization could be dependent on load; under high load,
-   prioritization state can be discarded to limit resource commitments.
-   In extreme cases, an endpoint could even discard prioritization state
-   for active or reserved streams.  If a limit is applied, endpoints
-   SHOULD maintain state for at least as many streams as allowed by
-   their setting for SETTINGS_MAX_CONCURRENT_STREAMS.  Implementations
-   SHOULD also attempt to retain state for streams that are in active
-   use in the priority tree.
-
-   If it has retained enough state to do so, an endpoint receiving a
-   PRIORITY frame that changes the priority of a closed stream SHOULD
-   alter the dependencies of the streams that depend on it.
-
-5.3.5.  Default Priorities
-
-   All streams are initially assigned a non-exclusive dependency on
-   stream 0x0.  Pushed streams (Section 8.2) initially depend on their
-   associated stream.  In both cases, streams are assigned a default
-   weight of 16.
+   Servers SHOULD use other contextual information in determining
+   priority of requests in the absence of any priority signals.  Servers
+   MAY interpret the complete absence of signals as an indication that
+   the client has not implemented the feature.  The defaults described
+   in Section 5.3.5 of [RFC7540] are known to have poor performance
+   under most conditions and their use is unlikely to be deliberate.
 
 5.4.  Error Handling
 
@@ -1482,7 +1329,7 @@ Table of Contents
     |                           Padding (*)                       ...
     +---------------------------------------------------------------+
 
-                        Figure 6: DATA Frame Payload
+                        Figure 3: DATA Frame Payload
 
    The DATA frame contains the following fields:
 
@@ -1551,7 +1398,7 @@ Table of Contents
     |                           Padding (*)                       ...
     +---------------------------------------------------------------+
 
-                      Figure 7: HEADERS Frame Payload
+                      Figure 4: HEADERS Frame Payload
 
    The HEADERS frame payload has the following fields:
 
@@ -1559,18 +1406,14 @@ Table of Contents
       padding in units of octets.  This field is only present if the
       PADDED flag is set.
 
-   E:  A single-bit flag indicating that the stream dependency is
-      exclusive (see Section 5.3).  This field is only present if the
-      PRIORITY flag is set.
+   E:  A single-bit flag.  This field is only present if the PRIORITY
+      flag is set.
 
-   Stream Dependency:  A 31-bit stream identifier for the stream that
-      this stream depends on (see Section 5.3).  This field is only
+   Stream Dependency:  A 31-bit stream identifier.  This field is only
       present if the PRIORITY flag is set.
 
-   Weight:  An unsigned 8-bit integer representing a priority weight for
-      the stream (see Section 5.3).  Add one to the value to obtain a
-      weight between 1 and 256.  This field is only present if the
-      PRIORITY flag is set.
+   Weight:  An unsigned 8-bit integer.  This field is only present if
+      the PRIORITY flag is set.
 
    Field Block Fragment:  A field block fragment (Section 4.3).
 
@@ -1601,8 +1444,7 @@ Table of Contents
       and any padding that it describes are present.
 
    PRIORITY (0x20):  When set, bit 5 indicates that the Exclusive Flag
-      (E), Stream Dependency, and Weight fields are present; see
-      Section 5.3.
+      (E), Stream Dependency, and Weight fields are present.
 
    The frame payload of a HEADERS frame contains a field block fragment
    (Section 4.3).  A field block that does not fit within a HEADERS
@@ -1618,20 +1460,14 @@ Table of Contents
 
    The HEADERS frame can include padding.  Padding fields and flags are
    identical to those defined for DATA frames (Section 6.1).  Padding
-   that exceeds the size remaining for the header block fragment MUST be
+   that exceeds the size remaining for the field block fragment MUST be
    treated as a PROTOCOL_ERROR.
-
-   Prioritization information in a HEADERS frame is logically equivalent
-   to a separate PRIORITY frame, but inclusion in HEADERS avoids the
-   potential for churn in stream prioritization when new streams are
-   created.  Prioritization fields in HEADERS frames subsequent to the
-   first on a stream reprioritize the stream (Section 5.3.3).
 
 6.3.  PRIORITY
 
-   The PRIORITY frame (type=0x2) specifies the sender-advised priority
-   of a stream (Section 5.3).  It can be sent in any stream state,
-   including idle or closed streams.
+   The PRIORITY frame (type=0x2) is deprecated; see Section 5.3.2.  A
+   PRIORITY frame can be sent in any stream state, including idle or
+   closed streams.
 
     +-+-------------------------------------------------------------+
     |E|                  Stream Dependency (31)                     |
@@ -1639,19 +1475,15 @@ Table of Contents
     |   Weight (8)  |
     +-+-------------+
 
-                      Figure 8: PRIORITY Frame Payload
+                      Figure 5: PRIORITY Frame Payload
 
    The frame payload of a PRIORITY frame contains the following fields:
 
-   E:  A single-bit flag indicating that the stream dependency is
-      exclusive (see Section 5.3).
+   E:  A single-bit flag.
 
-   Stream Dependency:  A 31-bit stream identifier for the stream that
-      this stream depends on (see Section 5.3).
+   Stream Dependency:  A 31-bit stream identifier.
 
-   Weight:  An unsigned 8-bit integer representing a priority weight for
-      the stream (see Section 5.3).  Add one to the value to obtain a
-      weight between 1 and 256.
+   Weight:  An unsigned 8-bit integer.
 
    The PRIORITY frame does not define any flags.
 
@@ -1661,21 +1493,10 @@ Table of Contents
    PROTOCOL_ERROR.
 
    Sending or receiving a PRIORITY frame does not affect the state of
-   any stream (Section 5.1), only the priority of streams is altered.
-
-   The PRIORITY frame can be sent on a stream in any state, though it
-   cannot be sent between consecutive frames that comprise a single
-   field block (Section 4.3).  Note that this frame could arrive after
-   processing or frame sending has completed, which would cause it to
-   have no effect on the identified stream.  For a stream that is in the
-   "half-closed (remote)" or "closed" state, this frame can only affect
-   processing of the identified stream and its dependent streams; it
-   does not affect frame transmission on that stream.
-
-   The PRIORITY frame can be sent for a stream in the "idle" or "closed"
-   state.  This allows for the reprioritization of a group of dependent
-   streams by altering the priority of an unused or closed parent
-   stream.
+   any stream (Section 5.1).  The PRIORITY frame can be sent on a stream
+   in any state, including "idle" or "closed".  A PRIORITY frame cannot
+   be sent between consecutive frames that comprise a single field block
+   (Section 4.3).
 
    A PRIORITY frame with a length other than 5 octets MUST be treated as
    a stream error (Section 5.4.2) of type FRAME_SIZE_ERROR.
@@ -1690,7 +1511,7 @@ Table of Contents
     |                        Error Code (32)                        |
     +---------------------------------------------------------------+
 
-                     Figure 9: RST_STREAM Frame Payload
+                     Figure 6: RST_STREAM Frame Payload
 
    The RST_STREAM frame contains a single unsigned, 32-bit integer
    identifying the error code (Section 7).  The error code indicates why
@@ -1782,7 +1603,7 @@ Table of Contents
     |                        Value (32)                             |
     +---------------------------------------------------------------+
 
-                         Figure 10: Setting Format
+                          Figure 7: Setting Format
 
 6.5.2.  Defined Settings
 
@@ -1899,7 +1720,7 @@ Table of Contents
     |                           Padding (*)                       ...
     +---------------------------------------------------------------+
 
-                   Figure 11: PUSH_PROMISE Frame Payload
+                    Figure 8: PUSH_PROMISE Frame Payload
 
    The PUSH_PROMISE frame payload has the following fields:
 
@@ -1996,7 +1817,7 @@ Table of Contents
     |                                                               |
     +---------------------------------------------------------------+
 
-                       Figure 12: PING Frame Payload
+                        Figure 9: PING Frame Payload
 
    In addition to the frame header, PING frames MUST contain 8 octets of
    opaque data in the frame payload.  A sender can include any value it
@@ -2075,7 +1896,7 @@ Table of Contents
     |                  Additional Debug Data (*)                    |
     +---------------------------------------------------------------+
 
-                      Figure 13: GOAWAY Frame Payload
+                      Figure 10: GOAWAY Frame Payload
 
    The GOAWAY frame does not define any flags.
 
@@ -2180,7 +2001,7 @@ Table of Contents
     |R|              Window Size Increment (31)                     |
     +-+-------------------------------------------------------------+
 
-                   Figure 14: WINDOW_UPDATE Frame Payload
+                   Figure 11: WINDOW_UPDATE Frame Payload
 
    The frame payload of a WINDOW_UPDATE frame is one reserved bit plus
    an unsigned 31-bit integer indicating the number of octets that the
@@ -2332,7 +2153,7 @@ Table of Contents
     |                    Field Block Fragment (*)                 ...
     +---------------------------------------------------------------+
 
-                   Figure 15: CONTINUATION Frame Payload
+                   Figure 12: CONTINUATION Frame Payload
 
    The CONTINUATION frame payload contains a field block fragment
    (Section 4.3).
@@ -2964,7 +2785,7 @@ Table of Contents
    pushed before discovering embedded links.  Similarly, if the server
    pushes responses referenced by the field block (for instance, in Link
    header fields), sending a PUSH_PROMISE before sending the header
-   block ensures that clients do not request those resources.
+   ensures that clients do not request those resources.
 
    PUSH_PROMISE frames MUST NOT be sent by the client.
 
@@ -3893,6 +3714,13 @@ Table of Contents
               Terminology", BCP 219, RFC 8499, DOI 10.17487/RFC8499,
               January 2019,
               <https://datatracker.ietf.org/doc/html/rfc8499>.
+
+   [I-D.ietf-httpbis-priority]
+              Oku, K. and L. Pardue, "Extensible Prioritization Scheme
+              for HTTP", Work in Progress, Internet-Draft, draft-ietf-
+              httpbis-priority-03, 11 January 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
+              priority-03.txt>.
 
    [NFLX-2019-002]
               Netflix, "HTTP/2 Denial of Service Advisory", 13 August
