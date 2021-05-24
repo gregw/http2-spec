@@ -3531,17 +3531,9 @@ Table of Contents
               RFC 3986, January 2005,
               <https://datatracker.ietf.org/doc/html/rfc3986>.
 
-   [RFC4648]  Josefsson, S., "The Base16, Base32, and Base64 Data
-              Encodings", RFC 4648, October 2006,
-              <https://datatracker.ietf.org/doc/html/rfc4648>.
-
    [RFC5226]  Narten, T. and H. Alvestrand, "Guidelines for Writing an
               IANA Considerations Section in RFCs", BCP 26, RFC 5226,
               May 2008, <https://datatracker.ietf.org/doc/html/rfc5226>.
-
-   [RFC5234]  Crocker, D., Ed. and P. Overell, "Augmented BNF for Syntax
-              Specifications: ABNF", STD 68, RFC 5234, January 2008,
-              <https://datatracker.ietf.org/doc/html/rfc5234>.
 
    [RFC8470]  Thomson, M., Nottingham, M., and W. Tarreau, "Using Early
               Data in HTTP", RFC 8470, DOI 10.17487/RFC8470, September
@@ -3579,11 +3571,6 @@ Table of Contents
    [ALT-SVC]  Nottingham, M., McManus, P., and J. Reschke, "HTTP
               Alternative Services", RFC 7838, April 2016,
               <https://datatracker.ietf.org/doc/html/rfc7838>.
-
-   [BCP90]    Klyne, G., Nottingham, M., and J. Mogul, "Registration
-              Procedures for Message Header Fields", BCP 90, RFC 3864,
-              September 2004,
-              <https://datatracker.ietf.org/doc/html/rfc3864>.
 
    [BREACH]   Gluck, Y., Harris, N., and A. Prado, "BREACH: Reviving the
               CRIME Attack", 12 July 2013,
