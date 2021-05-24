@@ -159,6 +159,7 @@ Table of Contents
    12. References
      12.1.  Normative References
      12.2.  Informative References
+     12.3.  Informative References
    Appendix A.  Prohibited TLS 1.2 Cipher Suites
    Appendix B.  Changes from RFC 7540
    Contributors
@@ -2521,14 +2522,13 @@ Table of Contents
 
 8.1.2.1.  Pseudo-Header Fields
 
-   While HTTP/1.x used the message start-line (see Section 2.1 of
-   [HTTP11]) to convey control data, HTTP/2 uses special pseudo-header
-   fields beginning with ':' character (ASCII 0x3a) for this purpose.
+   HTTP/2 uses special pseudo-header fields beginning with ':' character
+   (ASCII 0x3a) to convey message control data (see Section 6.2 of
+   [HTTP]).
 
-   Pseudo-header fields are not HTTP header fields.  Pseudo-header
-   fields contain control data (see Section 6.2 of [HTTP]).  Endpoints
-   MUST NOT generate pseudo-header fields other than those defined in
-   this document.  Note that an extension could negotiate the use of
+   Pseudo-header fields are not HTTP header fields.  Endpoints MUST NOT
+   generate pseudo-header fields other than those defined in this
+   document.  Note that an extension could negotiate the use of
    additional pseudo-header fields; see Section 5.5.
 
    Pseudo-header fields are only valid in the context in which they are
@@ -2594,22 +2594,32 @@ Table of Contents
       ":authority" pseudo-header field instead of the "Host" header
       field.
 
-      An intermediary that translates a request to HTTP/2 from HTTP/1.1,
-      with an origin-, asterisk-, or authority-form request target (see
-      Section 3.2 of [HTTP11]) MUST retain the "Host" header field and
-      not add an ":authority" pseudo-header field.  For an absolute-form
-      request target, the intermediary MUST obtain a value for the
-      ":authority" pseudo-header field from the request URI and retain
-      the value of the "Host" header field.
+      An intermediary that translates a request to HTTP/2 from another
+      HTTP version MUST translate any authority information from the
+      request into an ":authority" pseudo-header field.  If the control
+      data in the original request contains authority information, an
+      intermediary MUST include a ":authority" pseudo-header field.  If
+      control data does not contain authority, an intermediary MUST NOT
+      add an ":authority" pseudo-header field.  For reference, an
+      HTTP/1.1 Section 3.2 of request target [HTTP11] in authority-form
+      always includes authority, a request target in absolute-form
+      includes authority if the target URI includes authority, and
+      request targets in origin- or asterisk-form do not include
+      authority.
 
-      An intermediary that translates a request to HTTP/1.1 from HTTP/2
-      MUST create a "Host" header field if one is not present in a
-      request by copying the value of the ":authority" pseudo-header
-      field.
+      An intermediary that translates a request to another HTTP version
+      from HTTP/2 can construct a "Host" header field by copying the
+      value of the ":authority" pseudo-header field if that version
+      requires that "Host" be included in a request, as HTTP/1.1 does
+      for some forms of request target (see Section 3.2 of [HTTP11]).
 
-      A request that was translated from absolute form could include
-      both ":authority" and "Host".  The value of the "Host" header
-      field is ignored, as defined in Section 3.2.2 of [HTTP11].
+      An intermediary that translates a request to HTTP/2 from another
+      HTTP version MUST retain any "Host" header field, even if an
+      authority is part of control data.
+
+      The value of the "Host" header field MUST be ignored if control
+      data contains authority (that is, the ":authority" pseudo-header
+      field is present).
 
    *  The ":path" pseudo-header field includes the path and query parts
       of the target URI (the "path-absolute" production and optionally a
@@ -3802,12 +3812,6 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
               semantics-15.txt>.
 
-   [HTTP11]   Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
-              Ed., "HTTP/1.1", Work in Progress, Internet-Draft, draft-
-              ietf-httpbis-messaging-15, 30 March 2021,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
-              messaging-15.txt>.
-
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997,
               <https://datatracker.ietf.org/doc/html/rfc2119>.
@@ -3861,6 +3865,14 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/rfc8446>.
 
 12.2.  Informative References
+
+   [HTTP11]   Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP/1.1", Work in Progress, Internet-Draft, draft-
+              ietf-httpbis-messaging-15, 30 March 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
+              messaging-15.txt>.
+
+12.3.  Informative References
 
    [ALT-SVC]  Nottingham, M., McManus, P., and J. Reschke, "HTTP
               Alternative Services", RFC 7838, April 2016,
