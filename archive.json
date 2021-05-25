@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-05-23T01:14:12.774114+00:00",
+  "timestamp": "2021-05-25T01:08:46.528614+00:00",
   "repo": "httpwg/http2-spec",
   "labels": [
     {
@@ -17530,19 +17530,19 @@
       "id": "MDU6SXNzdWU3MzExNzEyMTI=",
       "title": "Remove upgrade mechanism",
       "url": "https://github.com/httpwg/http2-spec/issues/772",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "This has not been implemented, so can likely go.\r\n\r\nSee the discussion on https://github.com/martinthomson/http2v2/issues/2 for more context.",
       "createdAt": "2020-10-28T07:08:44Z",
-      "updatedAt": "2021-02-09T23:02:23Z",
-      "closedAt": null,
+      "updatedAt": "2021-05-24T07:07:54Z",
+      "closedAt": "2021-05-24T07:07:54Z",
       "comments": [
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "I\u2019m in favour of removing this. It\u2019s clear that the ecosystem has not found a use for it.",
           "createdAt": "2020-10-28T08:02:59Z",
           "updatedAt": "2020-10-28T08:02:59Z"
@@ -17575,15 +17575,15 @@
       "id": "MDU6SXNzdWU3MzExNzE3MzU=",
       "title": "Consider (partial) removal of priority signaling",
       "url": "https://github.com/httpwg/http2-spec/issues/773",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "This probably needs a skeleton left over so that we can avoid interoperability problems that might arise from interactions with peers that still have them. There are some MUST-level requirements around parsing that would need to be identified and marked.\r\n\r\nSee https://github.com/martinthomson/http2v2/issues/3 for more discussion.",
       "createdAt": "2020-10-28T07:09:35Z",
-      "updatedAt": "2021-02-10T00:38:53Z",
-      "closedAt": null,
+      "updatedAt": "2021-05-24T07:04:42Z",
+      "closedAt": "2021-05-24T07:04:42Z",
       "comments": [
         {
           "author": "mnot",
@@ -17650,7 +17650,7 @@
         },
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "It seems like draft-ietf-httpbis-priority-03 deprecates the original priority scheme. At least, that's the language it wants to use. It seems like we should at the very least consider updating the language in the document to note that the scheme is deprecated and to direct users to draft-ietf-httpbis-priority. I'd also like to save some bytes and remove the text discussing how the scheme works and direct users to RFC 7540 but I'm open to being persuaded on that point.",
           "createdAt": "2021-02-09T21:23:31Z",
           "updatedAt": "2021-02-09T21:23:31Z"
@@ -17744,10 +17744,12 @@
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "revisit-upon-change"
+      ],
       "body": "This probably is just frames and settings.  We'll have to make it clear that greased frames in particular aren't necessarily safe to send based on deployment experience.  See also [draft-bishop-httpbis-grease](https://mikebishop.github.io/http-misc-extensions/draft-bishop-httpbis-grease.html).",
       "createdAt": "2020-10-28T07:10:51Z",
-      "updatedAt": "2021-02-09T22:57:40Z",
+      "updatedAt": "2021-05-24T07:31:59Z",
       "closedAt": null,
       "comments": [
         {
@@ -17766,7 +17768,7 @@
         },
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "I suspect it's going to be hard to do this without a new ALPN.",
           "createdAt": "2021-02-09T22:57:40Z",
           "updatedAt": "2021-02-09T22:57:40Z"
@@ -18051,7 +18053,7 @@
       "id": "MDU6SXNzdWU3MzExNzUyOTI=",
       "title": "Centralize the definition of frame flags",
       "url": "https://github.com/httpwg/http2-spec/issues/782",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
@@ -18060,12 +18062,12 @@
       ],
       "body": "The state machine diagram currently mentions EH/ES but each frame has its own definition which happens to always have the same value. Let's instead enumerate known flags with their values at one place, and mention for each frame which ones it supports or are forbidden. This will significantly simplify implementations and will cut the text. It might even lead to generalizing flag processing instead of repeating the text for each frame type.\r\n\r\nSuggested by @wtarreau; this is probably just editorial.",
       "createdAt": "2020-10-28T07:15:26Z",
-      "updatedAt": "2021-02-18T09:00:30Z",
-      "closedAt": null,
+      "updatedAt": "2021-05-24T07:24:05Z",
+      "closedAt": "2021-05-24T07:24:05Z",
       "comments": [
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "Hmm, I looked at this a bit and I'm not sure this is editorial. [RFC 7540 \u00a7 4.1 \"Frame Format\"](https://tools.ietf.org/html/rfc7540#section-4) says:\r\n\r\n> Flags:  An 8-bit field reserved for boolean flags specific to the frame type.\r\n>\r\n> Flags are assigned semantics specific to the indicated frame type. Flags that have no defined semantics for a particular frame type MUST be ignored and MUST be left unset (0x0) when sending.\r\n\r\nThis seems to say three things, two of which make this editorial and one of which maybe doesn't. The latter paragraph makes two comments around flags having \"semantics specific to the indicated frame type\" and handling errors for flags that no semantics for a frame type.\r\n\r\nThe first paragraph, however, says \"flags specific to the frame type\". This is a bit different. It somewhat implies that the flag definitions themselves may be specific to each frame type. This reading is somewhat reinforced by [RFC 8336 (The ORIGIN HTTP/2 Frame) \u00a7 2.2 \"Processing ORIGIN Frames\"](https://tools.ietf.org/html/rfc8336#section-2.2) which says:\r\n\r\n> This specification does not define any flags for the ORIGIN frame, but future updates to this specification (through IETF consensus) might use them to change its semantics.  The first four flags (0x1, 0x2, 0x4, and 0x8) are reserved for backwards-incompatible changes; therefore, when any of them are set, the ORIGIN frame containing them MUST be ignored by clients conforming to this specification, unless the flag's semantics are understood.  The remaining flags are reserved for backwards-compatible changes and do not affect processing by clients conformant to this specification. \r\n\r\nThis is somewhat unclear but does appear to read as though ORIGIN reserves the right to use flag 0x1 for a purpose _other_ than END_STREAM (a flag that would never be meaningful on ORIGIN).\r\n\r\nDo we want to reconsider whether this is editorial?",
           "createdAt": "2021-02-17T17:28:36Z",
           "updatedAt": "2021-02-17T17:28:36Z"
@@ -18086,7 +18088,7 @@
         },
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "Should we be providing guidance that says that implementations SHOULD attempt to re-use frame definitions and bit assignment if possible, and SHOULD try to avoid using bits that are defined for other flags in the core specification? I have mixed feelings about it but seems like an idea.",
           "createdAt": "2021-02-18T07:32:20Z",
           "updatedAt": "2021-02-18T07:32:20Z"
@@ -18097,6 +18099,13 @@
           "body": "It's an idea, but I don't think that it's worth saying explicitly.  Any one taking due care will probably do that, but we don't need to say that.",
           "createdAt": "2021-02-18T09:00:30Z",
           "updatedAt": "2021-02-18T09:00:30Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "The editors discussed this and it doesn't work out so well.  Happy to consider a pull request if someone feels strongly.",
+          "createdAt": "2021-05-24T07:24:05Z",
+          "updatedAt": "2021-05-24T07:24:05Z"
         }
       ]
     },
@@ -18108,18 +18117,20 @@
       "state": "OPEN",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
-      "assignees": [],
+      "assignees": [
+        "martinthomson"
+      ],
       "labels": [
         "editorial"
       ],
       "body": "Rules around the closed state are particularly ambigous, because we lack a \"closing\" or equivalent state and any forced local close by RST_STREAM results in incoming frames violating the rules for what is acceptable in closed state since the other end doesn't know it's closed. It used to be even more problematic with priorities since some dependencies could be completely changed. I had a proposal to improve this using a form of ACK for RST/GOAWAY using PING that would allow one side to know when the other side was notified of these frames, but with priorities gone I don't think that's needed anymore. However we still need to be careful about the MUST NOT wording around whatever involves the closed state.\r\n\r\nSuggested by @wtarreau.",
       "createdAt": "2020-10-28T07:15:52Z",
-      "updatedAt": "2021-04-24T04:22:46Z",
+      "updatedAt": "2021-05-24T07:50:26Z",
       "closedAt": null,
       "comments": [
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "Agreed to this, I keep track with a bit of whether _we_ forcibly reset the stream or whether the remote peer did, and give the remote peer some grace if we did. Seems like this is what everyone has to do, but new text might be nice.",
           "createdAt": "2020-10-28T08:20:52Z",
           "updatedAt": "2020-10-28T08:20:52Z"
@@ -18147,7 +18158,7 @@
         },
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "I agree with @wtarreau that the change to the state diagram and state machine is pretty minor. It doesn't add unnecessary complexity.\r\n\r\nWhat does require thought is the question of automatic transition from \"reset\" to \"closed\". Timers are a bit less than ideal, though if you've got reasonable estimates for the round-trip delay you can arrange a _very_ high fidelity timer for dropping your state.\r\n\r\nThe idea of tombstoning the streams is also pretty good. The problem with \"push the oldest reset one out\" isn't a protocol problem but an implementation problem, which is that a data structure optimised for that use-case is a bit awkward. In most cases the number of concurrent streams on any connection is low so the operation is fairly cheap but it's still not ideal.\r\n\r\nYou can make this a lot cheaper (and we do) by, when resetting a stream, dropping all stream state immediately except for the stream identifier. This lets us throw away our expensive-to-maintain state and retain just enough to ignore the inbound frames. This does expose us to a small period of time where we don't have the capacity to enforce several of the MUSTs in the RFC, but it's more important to us to preserve and minimise our state commitment than to police, say, the flow control window of a stream we don't have anymore.\r\n\r\nI think perhaps the best step is to provide a range of guidance in a \"state management\" section. We don't have this today, but it's probably useful to add. The guidance can be:\r\n\r\n1. When resetting a stream, you transition the stream to the reset state. This state requires keeping around some amount of stream data in order to identify and tolerate frames on that stream.\r\n2. You can drop this state at your own leisure, but it SHOULD last at least as long as one complete RTT, to allow the peer to process the reset.\r\n3. There are a few ways to know that this time has passed:\r\n    1. If you have access to an accurate estimate of the RTT (e.g. via PING frames) you can set a timer.\r\n    2. If you see SETTINGS_MAX_CONCURRENT_STREAMS new streams created since the reset, you can drop the stream.\r\n    3. If you send and get get a response to a PING frame you can drop the stream.\r\n    4. If you send and get a response to a SETTINGS frame you can drop the stream.\r\n    5. If you create a new stream and receive any frame on it you can drop the stream.\r\n\r\nImplementers are however free to implement this logic in whatever way is best for their implementation.\r\n\r\nHow does this seem?",
           "createdAt": "2021-04-22T07:06:01Z",
           "updatedAt": "2021-04-22T07:06:01Z"
@@ -18168,7 +18179,7 @@
         },
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "That would work for me, and we can add a little clause that says \"or any other appropriate signal\".",
           "createdAt": "2021-04-23T16:30:31Z",
           "updatedAt": "2021-04-23T16:30:31Z"
@@ -18190,13 +18201,15 @@
       "state": "OPEN",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
-      "assignees": [],
+      "assignees": [
+        "Lukasa"
+      ],
       "labels": [
         "editorial"
       ],
       "body": "H2 strongly suffers from head-of-line blocking when streams do not progress at the same spead, typically when they come from coalesced connections from different clients. Per-stream flow control is generally ineffective against this as practical window sizes matching a BDP often require impractical buffering between the intermediary and the client. As such we should mention in the recommendations that intermediaries that coalesce connections either have very large buffers or try to group streams from a same client connection together on a server connection.\r\n\r\nSuggested by @wtarreau.",
       "createdAt": "2020-10-28T07:16:23Z",
-      "updatedAt": "2021-04-24T04:15:40Z",
+      "updatedAt": "2021-05-24T07:51:47Z",
       "closedAt": null,
       "comments": [
         {
@@ -18247,6 +18260,13 @@
           "body": "By the way, one easy trap to fall into is to advertise a window corresponding to the buffer used at the connection level, while what matters is how much you can extract from this connection to be able to immediately parse subsequent frames. And often you have no precise ideas of how much space there is outside.",
           "createdAt": "2021-04-24T04:15:40Z",
           "updatedAt": "2021-04-24T04:15:40Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Let's try to pull something in, maybe copy from QUIC: https://quicwg.org/base-drafts/rfc9000.html#name-flow-control-performance",
+          "createdAt": "2021-05-24T07:28:57Z",
+          "updatedAt": "2021-05-24T07:28:57Z"
         }
       ]
     },
@@ -18258,13 +18278,15 @@
       "state": "OPEN",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
-      "assignees": [],
+      "assignees": [
+        "martinthomson"
+      ],
       "labels": [
         "editorial"
       ],
       "body": "https://portswigger.net/daily-swig/researchers-exploit-http-2-wpa3-protocols-to-stage-highly-efficient-timeless-timing-attacks describes how HTTP/2 can be used to remove some network-induced jitter from the timing measurements. If your server has timing side channels, then putting requests that can be compared in the same IP packet ensures that the server receives them at the same time. This doesn't help if timing differences are masked by server queuing, CDNs or load balancers, or response delivery, but it can help reduce measurement noise.\r\n\r\nConsider documenting this.",
       "createdAt": "2020-10-28T07:16:41Z",
-      "updatedAt": "2021-02-09T22:41:26Z",
+      "updatedAt": "2021-05-24T07:51:55Z",
       "closedAt": null,
       "comments": [
         {
@@ -18584,11 +18606,13 @@
       "state": "OPEN",
       "author": "jyasskin",
       "authorAssociation": "NONE",
-      "assignees": [],
+      "assignees": [
+        "Lukasa"
+      ],
       "labels": [],
       "body": "I have no personal knowledge of this issue, but it came up on the #whatwg IRC channel. https://megamorf.gitlab.io/2019/08/27/safari-nsposixerrordomain-100-error-with-nginx-and-apache/ describes Safari rejecting responses that contain the `upgrade` header field, while other browsers accept it. It'd be good to converge the major clients on a single behavior and, if that's not the behavior currently specified, update the spec to match.",
       "createdAt": "2020-11-04T23:47:08Z",
-      "updatedAt": "2021-02-09T22:48:23Z",
+      "updatedAt": "2021-05-24T07:51:08Z",
       "closedAt": null,
       "comments": [
         {
@@ -18792,7 +18816,7 @@
       "id": "MDU6SXNzdWU3Njk1Mzc4MjM=",
       "title": "Malformed requests might have been processed",
       "url": "https://github.com/httpwg/http2-spec/issues/794",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
@@ -18801,8 +18825,8 @@
       ],
       "body": "The language [here](https://martinthomson.github.io/http2v2/draft-thomson-httpbis-http2bis.html#section-8.1.2.6-3) doesn't properly acknowledge the possibility that some processing might have been performed before an error is detected.  This could use some tweaking.",
       "createdAt": "2020-12-17T05:31:25Z",
-      "updatedAt": "2020-12-17T10:20:57Z",
-      "closedAt": null,
+      "updatedAt": "2021-05-24T07:14:04Z",
+      "closedAt": "2021-05-24T07:14:04Z",
       "comments": [
         {
           "author": "martinthomson",
@@ -18813,7 +18837,7 @@
         },
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "Seems like a reasonable change.",
           "createdAt": "2020-12-17T10:20:57Z",
           "updatedAt": "2020-12-17T10:20:57Z"
@@ -18964,16 +18988,18 @@
       "state": "OPEN",
       "author": "reschke",
       "authorAssociation": "CONTRIBUTOR",
-      "assignees": [],
+      "assignees": [
+        "martinthomson"
+      ],
       "labels": [],
       "body": "<https://tools.ietf.org/html/rfc7540#section-10.3>:\r\n\r\n>  Similarly, HTTP/2 allows header field values that are not valid.\r\n   While most of the values that can be encoded will not alter header\r\n   field parsing, carriage return (CR, ASCII 0xd), line feed (LF, ASCII\r\n   0xa), and the zero character (NUL, ASCII 0x0) might be exploited by\r\n   an attacker if they are translated verbatim.  Any request or response\r\n   that contains a character not permitted in a header field value MUST\r\n   be treated as malformed (Section 8.1.2.6).  Valid characters are\r\n   defined by the \"field-content\" ABNF rule in Section 3.2 of [RFC7230].\r\n\r\nThere are multiple issues here:\r\n\r\n- it's confusing to say \"HTTP/2 allows\" when next they are actually forbidden with a MUST requirement; it might be better to say something like that the wire protocol in theory enables the transmission of these forbidden characters\r\n- this puts a normative requirement on top of the base spec; but so does the revision of the core specs (see https://github.com/httpwg/http-core/issues/683). We need to make sure that there are no conflicting requirements. It also should be checked whether the currently present requirements are actually implemented in UAs (and if they are not, what could be done about it)",
       "createdAt": "2021-02-05T08:34:52Z",
-      "updatedAt": "2021-02-11T22:06:05Z",
+      "updatedAt": "2021-05-24T07:50:38Z",
       "closedAt": null,
       "comments": [
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "It would presumably be more accurate to say that \"HPACK allows\", right?",
           "createdAt": "2021-02-05T14:04:23Z",
           "updatedAt": "2021-02-05T14:04:23Z"
@@ -19041,19 +19067,21 @@
       "id": "MDU6SXNzdWU4MTM5MzE5MzQ=",
       "title": "Any appropriate error code, including generic ones",
       "url": "https://github.com/httpwg/http2-spec/issues/824",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
-      "assignees": [],
+      "assignees": [
+        "martinthomson"
+      ],
       "labels": [],
       "body": "QUIC includes the following statement:\r\n\r\n>  In particular, an endpoint MAY use any applicable error code when it detects an error condition; a generic error code (such as PROTOCOL_VIOLATION or INTERNAL_ERROR) can always be used in place of specific error codes.\r\n\r\nI like this.  (No accident.  I wrote it.)\r\n\r\nShould HTTP/2 include a similar statement?  We have PROTOCOL_ERROR, which has a definition compatible with this statement, so I guess we're already there on as far as allowing a generic code goes.  Any sense in saying it explicitly?",
       "createdAt": "2021-02-22T22:52:01Z",
-      "updatedAt": "2021-02-23T08:08:35Z",
-      "closedAt": null,
+      "updatedAt": "2021-05-24T22:51:01Z",
+      "closedAt": "2021-05-24T22:51:00Z",
       "comments": [
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "Yeah, I think this is sensible text to include.",
           "createdAt": "2021-02-23T08:08:35Z",
           "updatedAt": "2021-02-23T08:08:35Z"
@@ -19068,11 +19096,13 @@
       "state": "OPEN",
       "author": "mnot",
       "authorAssociation": "MEMBER",
-      "assignees": [],
+      "assignees": [
+        "martinthomson"
+      ],
       "labels": [],
       "body": "There's currently a slight divergence in IANA policies between h2 and h3:\r\n\r\n- Frame Types: IETF Review, Experimental Use (h2) / Standards Action, Specification Required (h3)\r\n- Settings: Expert Review, Experimental Use / Standards Action, Specification Required\r\n- Error Codes: Expert Review / Standards Action, Specification Required\r\n\r\nIf we can align these with low pain, it might be worthwhile; e.g., can we get rid of the experimental use areas and upgrade Expert Review to Specification Required?",
       "createdAt": "2021-03-04T04:36:24Z",
-      "updatedAt": "2021-03-04T06:01:22Z",
+      "updatedAt": "2021-05-24T10:26:45Z",
       "closedAt": null,
       "comments": [
         {
@@ -19088,6 +19118,13 @@
           "body": "+1, I think we can advertise in the WG and maybe one or two other places and that'd be sufficient, absent pushback.",
           "createdAt": "2021-03-04T06:01:22Z",
           "updatedAt": "2021-03-04T06:01:22Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "There are two potential changes here: dropping experimental use and adding provisional registrations.  I think that I prefer doing just the former.  The registration policies we have are loose enough that we don't really gain much from provisional registrations, nor does it really change how things work in practice.\r\n\r\nQUIC has the notion that we might claw back provisional registrations, but that only really exists so that we can maybe reclaim the short codepoints in the small 0x00-0x3f range, which people are already camping out in as if they own them.  HTTP/2 has a flat space, which means we probably don't need to worry as much.  Frame types are scarce, but we can maybe use settings to overload those as necessary.  And the existence of HTTP/3 should relieve a lot of pressure on HTTP/2 anyway.",
+          "createdAt": "2021-05-24T10:26:45Z",
+          "updatedAt": "2021-05-24T10:26:45Z"
         }
       ]
     },
@@ -19344,15 +19381,15 @@
       "id": "MDU6SXNzdWU4NjQ2NjcxODE=",
       "title": "Tweak HTTP/1.1 dependencies",
       "url": "https://github.com/httpwg/http2-spec/issues/841",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Right now, we have a lot of 1.1-specific language.  In theory, it should be possible to remove 1.1 references and use core HTTP semantics to describe the protocol elements.  That would be much cleaner, but it could be tricky.",
       "createdAt": "2021-04-22T08:06:53Z",
-      "updatedAt": "2021-04-22T08:06:53Z",
-      "closedAt": null,
+      "updatedAt": "2021-05-24T05:37:39Z",
+      "closedAt": "2021-05-24T05:37:39Z",
       "comments": []
     },
     {
@@ -19379,13 +19416,25 @@
       "state": "OPEN",
       "author": "reschke",
       "authorAssociation": "CONTRIBUTOR",
-      "assignees": [],
-      "labels": [],
+      "assignees": [
+        "martinthomson"
+      ],
+      "labels": [
+        "editorial"
+      ],
       "body": "new registry for fields; see <https://httpwg.org/http-core/draft-ietf-httpbis-semantics-latest.html#field.name.registration>",
       "createdAt": "2021-04-22T08:52:29Z",
-      "updatedAt": "2021-04-22T08:52:29Z",
+      "updatedAt": "2021-05-24T09:16:39Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@reschke, #820 removed upgrade and changed the registration of this header field to:\r\n\r\n> This section marks the `HTTP2-Settings` header field registered in Section 11.5 of [RFC7540] as obsoleted.\r\n\r\nIs that OK?  Or would you prefer a complete registration update, as in:\r\n\r\nField Name: HTTP2-Settings\r\nStatus: Standard\r\nRef.: Section 11.5 of RFC 7540\r\nComments: This field is obsoleted (this document).\r\n",
+          "createdAt": "2021-05-24T09:16:39Z",
+          "updatedAt": "2021-05-24T09:16:39Z"
+        }
+      ]
     },
     {
       "number": 849,
@@ -19395,11 +19444,67 @@
       "state": "OPEN",
       "author": "LPardue",
       "authorAssociation": "NONE",
-      "assignees": [],
+      "assignees": [
+        "Lukasa"
+      ],
       "labels": [],
       "body": "Up-to-date HTTP core specs say in https://httpwg.org/http-core/draft-ietf-httpbis-semantics-latest.html#rfc.section.9.3.6.p.12\r\n\r\n> A server MUST NOT send any Transfer-Encoding or Content-Length header fields in a 2xx (Successful) response to CONNECT. A client MUST ignore any Content-Length or Transfer-Encoding header fields received in a successful response to CONNECT.\r\n> \r\n> A CONNECT request message does not have content. The interpretation of and allowability of data sent after the header section of the CONNECT request message is specific to the version of HTTP in use.\r\n\r\nBut https://datatracker.ietf.org/doc/html/rfc7540#section-8.3 makes it difficult to see if Content-Length is allowed on request.\r\n\r\nIt's clear that RFC7540 considers CONNECT requests to have no content. And it's clear that for normal request that if the sum of DATA frames don't match the sum Content-Length then its an error. But it is unclear if the server should quickly reject CONNECT requests that contain \"Content-Length: N\" (for N > 0), or how they should deal with \"Content-Length: 0\".",
       "createdAt": "2021-05-20T11:24:27Z",
-      "updatedAt": "2021-05-20T11:24:27Z",
+      "updatedAt": "2021-05-24T11:07:00Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I don't think we need to make any changes here.\r\n\r\nAs you quote, CONNECT requests are defined to not have content. This means that they're covered by Semantics \u00a7 8.6 (https://httpwg.org/http-core/draft-ietf-httpbis-semantics-latest.html#rfc.section.8.6) which reads:\r\n\r\n> A user agent SHOULD NOT send a Content-Length header field when the request message does not contain content and the method semantics do not anticipate such data.\r\n\r\nNo behaviour is specified for a peer that receives such a message, but one assumes that it has the same rough behaviour as, say, sending a Content-Length header field on GET: the semantics are unspecified and so not interoperable. You get what you get. Essentially, implementations are free to do whatever they want when they receive the Content-Length header field on a CONNECT request: they may apply the H2's strict Content-Length policing semantics (in which case any non-zero value should fail), or they may error immediately, or they may ignore the value.\r\n\r\nIn this instance I don't think there is any value in H2 specifying any additional behaviour above-and-beyond what semantics requires, as the fundamental problem is common across all HTTP messaging formats.",
+          "createdAt": "2021-05-24T11:06:45Z",
+          "updatedAt": "2021-05-24T11:07:00Z"
+        }
+      ]
+    },
+    {
+      "number": 851,
+      "id": "MDU6SXNzdWU4OTkzODEyMjc=",
+      "title": "Intermediaries and connection-specific headers",
+      "url": "https://github.com/httpwg/http2-spec/issues/851",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [
+        "Lukasa"
+      ],
+      "labels": [
+        "editorial"
+      ],
+      "body": "Upgrade, Transfer-Encoding, Content-Length, Connection, and anything listed in Connection MUST NOT be forwarded without modification.  See also #789.",
+      "createdAt": "2021-05-24T07:35:02Z",
+      "updatedAt": "2021-05-24T07:51:08Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Note that this probably goes in [Section 10.3](https://httpwg.org/http2-spec/draft-ietf-httpbis-http2bis.html#name-intermediary-encapsulation-)",
+          "createdAt": "2021-05-24T07:35:43Z",
+          "updatedAt": "2021-05-24T07:35:43Z"
+        }
+      ]
+    },
+    {
+      "number": 852,
+      "id": "MDU6SXNzdWU4OTk0MDE2NTE=",
+      "title": "Make sure the change log is correct",
+      "url": "https://github.com/httpwg/http2-spec/issues/852",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [
+        "editorial"
+      ],
+      "body": "Before we ship.",
+      "createdAt": "2021-05-24T07:55:27Z",
+      "updatedAt": "2021-05-24T07:55:27Z",
       "closedAt": null,
       "comments": []
     }
@@ -30160,24 +30265,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTQzODAyNzI0",
       "title": "Remove priority",
       "url": "https://github.com/httpwg/http2-spec/pull/795",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "This doesn't completely remove it, but it only keeps those pieces\r\nnecessary for interoperability with existing implementations: the rules\r\nfor sending PRIORITY frames in different stream states, the format of\r\nthe HEADERS and PRIORITY frames, and the error handling.\r\n\r\nIt replaces the exposition about how priority works with a deprecation\r\nnotice and the little advice that we currently understand to be\r\naccurate.\r\n\r\nCloses #773.",
       "createdAt": "2020-12-22T00:46:08Z",
-      "updatedAt": "2021-05-19T00:06:50Z",
+      "updatedAt": "2021-05-24T07:04:46Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
-      "baseRefOid": "b58675886c14a5c3929d459fe7565e9d5c1e9b30",
+      "baseRefOid": "054283fe7c7ec4eb95cf44dec6dfb378e15ec1cf",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "prioritectomy",
-      "headRefOid": "f84bca1dbd080d03025a2f9462118924fcaee050",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "1d9e8a637d98744eaeb553f283b64e0a1e5d3ab2",
+      "closedAt": "2021-05-24T07:04:42Z",
+      "mergedAt": "2021-05-24T07:04:42Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "fbe726ddf15b1f18acd7138133adcdb1a0e98b60"
+      },
       "comments": [
         {
           "author": "martinthomson",
@@ -30194,7 +30301,7 @@
             "abbreviatedOid": "0d98794"
           },
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "state": "APPROVED",
           "body": "LGTM.",
           "createdAt": "2020-12-22T08:01:16Z",
@@ -31892,35 +31999,37 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTc1MTAxMDE1",
       "title": "Remove Upgrade mechanism.",
       "url": "https://github.com/httpwg/http2-spec/pull/820",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "Lukasa",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "HTTP/1.1 to HTTP/2 Upgrade was never widely deployed and has no\r\nparticular defenders. This change removes the text explaining and\r\ndefining the mechanism.\r\n\r\nResolves #772.\r\n\r\nThis change still requires discussion on the mailing list.",
       "createdAt": "2021-02-17T17:50:19Z",
-      "updatedAt": "2021-05-19T07:24:51Z",
+      "updatedAt": "2021-05-24T07:07:54Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
-      "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
+      "baseRefOid": "fbe726ddf15b1f18acd7138133adcdb1a0e98b60",
       "headRepository": "Lukasa/http2-spec",
       "headRefName": "cb-remove-upgrade",
-      "headRefOid": "51bc9063bc68d584a81a0c46ef906d0bb960e4e0",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "93a586dcc297e37a29977a8e98c55c3b80cd575e",
+      "closedAt": "2021-05-24T07:07:54Z",
+      "mergedAt": "2021-05-24T07:07:54Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "d176ad03cfd4f6aadff6d3499f413bb4a5c34036"
+      },
       "comments": [
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "@martinthomson I've returned the two IANA registry entries and pointed them backwards at RFC 7540, as the sections that define those fields were removed from this document. I'm not actually sure that's the right IETF process there. Happy to take guidance as to what I should be doing instead (e.g. putting in a pair of dummy sections saying that the field and token don't have semantics any longer and referring to those instead).",
           "createdAt": "2021-02-18T08:58:41Z",
           "updatedAt": "2021-02-18T08:58:41Z"
         },
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "Ok, I've replaced the registrations with tombstones, this is ready for another go around.",
           "createdAt": "2021-02-23T11:02:06Z",
           "updatedAt": "2021-02-23T11:02:06Z"
@@ -31941,10 +32050,17 @@
         },
         {
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "Happy to add that here or make a separate change, either way.",
           "createdAt": "2021-05-19T07:24:51Z",
           "updatedAt": "2021-05-19T07:24:51Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Looking into this a little more, I think that Section 10.3 ([Intermediary Encapsulation Attacks](https://httpwg.org/http2-spec/draft-ietf-httpbis-http2bis.html#name-intermediary-encapsulation-)) is probably where some extra warnings might be worthwhile.\r\n\r\nThe reason I might prefer a separate change is that we can hit Upgrade, Transfer-Encoding, Content-Length, and other Connection fields at the same time if we do it right.",
+          "createdAt": "2021-05-24T05:35:42Z",
+          "updatedAt": "2021-05-24T05:35:42Z"
         }
       ],
       "reviews": [
@@ -32199,21 +32315,21 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTc4NDEzMDYz",
       "title": "Update of \"Prohibited TLS 1.2 Cipher Suites\"",
       "url": "https://github.com/httpwg/http2-spec/pull/825",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "emanjon",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "RFC 7540 is an awesome TLS 1.2 profile, a often recomment it for that purpose. \r\n\r\nAs far as I know, there has been 4 new ciphersuites (2 for TLS 1.2 and 2 for TLS 1.3) and 1 PskKeyExchangeMode violating the null and ephemeral key exchange requirements mandated by RFC 7540.",
       "createdAt": "2021-02-23T12:32:34Z",
-      "updatedAt": "2021-02-23T23:10:33Z",
+      "updatedAt": "2021-05-24T07:08:11Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
       "headRepository": "emanjon/http2-spec",
       "headRefName": "patch-1",
       "headRefOid": "6710a1046c89707a4f53f76b3ba13faf9f2dae76",
-      "closedAt": null,
+      "closedAt": "2021-05-24T07:08:11Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
@@ -32552,7 +32668,7 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NjIwNzQxMTY4",
       "title": "Stop using \"settings parameters\"",
       "url": "https://github.com/httpwg/http2-spec/pull/837",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
@@ -32561,18 +32677,28 @@
       ],
       "body": "In the spirit of the naming simplications of the recent HTTP changes, we\r\ncan talk about settings in this revision.\r\n\r\nThis aligns better with HTTP/3, though that still uses \"settings\r\nparameters\" (with that ugly double-plural).\r\n\r\ncc @MikeBishop ",
       "createdAt": "2021-04-22T04:09:07Z",
-      "updatedAt": "2021-04-22T06:22:18Z",
+      "updatedAt": "2021-05-24T15:11:28Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8817a822817063daa3fbd8cc6b5ef16155c42341",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "settings-not-parameters",
       "headRefOid": "3b4b98d2c829136db68772d3b35f4fc9b644a5fa",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
-      "comments": [],
+      "closedAt": "2021-05-24T05:36:06Z",
+      "mergedAt": "2021-05-24T05:36:05Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "8bb90634f038272616a09def448bd40ccb3bb983"
+      },
+      "comments": [
+        {
+          "author": "MikeBishop",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I mean, it's not too late to Auth48 the same change into H3....  Not quite, anyway.",
+          "createdAt": "2021-05-24T15:11:28Z",
+          "updatedAt": "2021-05-24T15:11:28Z"
+        }
+      ],
       "reviews": [
         {
           "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjQxODE0Mzgx",
@@ -32580,7 +32706,7 @@
             "abbreviatedOid": "3b4b98d"
           },
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "state": "APPROVED",
           "body": "",
           "createdAt": "2021-04-22T06:22:18Z",
@@ -32744,24 +32870,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NjIxODMzMTUy",
       "title": "Make HTTP/1.1 reference informational",
       "url": "https://github.com/httpwg/http2-spec/pull/845",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "This required a little careful rewriting of text that only recently\r\nrewrote.  Hopefully this retains the improvements of that rewrite.\r\n\r\nCloses #841.",
       "createdAt": "2021-04-23T07:10:47Z",
-      "updatedAt": "2021-04-23T16:38:25Z",
+      "updatedAt": "2021-05-24T05:37:40Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
-      "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
+      "baseRefOid": "8bb90634f038272616a09def448bd40ccb3bb983",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "http11-info",
-      "headRefOid": "39644371101ff0eb038fdef4ec24d7035d57efb8",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "7f8d12ab92f43a0db63dfc31b030327ca0eb5c8d",
+      "closedAt": "2021-05-24T05:37:39Z",
+      "mergedAt": "2021-05-24T05:37:39Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "054283fe7c7ec4eb95cf44dec6dfb378e15ec1cf"
+      },
       "comments": [],
       "reviews": [
         {
@@ -32770,7 +32898,7 @@
             "abbreviatedOid": "3964437"
           },
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "state": "APPROVED",
           "body": "Nice. I think the retains the original meaning of the text well enough, and is as clear as it can be without ever needing to normatively invoke HTTP/1.1. Needle well threaded.",
           "createdAt": "2021-04-23T16:38:25Z",
@@ -32791,13 +32919,13 @@
       "labels": [],
       "body": "This encodes the conclusions from interim discussions:\r\n\r\n1. CR, LF, and NUL cannot appear anywhere in field names or values.\r\n2. SP and HTAB cannot appear at the start or end of field names or\r\nvalues.\r\n3. COLON cannot appear anywhere in a field name, except for the colon at\r\nthe start of a pseudo-header field name.\r\n\r\nThe strong requirements about validating fields according to ABNF has\r\nbeen replaced.\r\n\r\nThe text is clearer about how the pieces fit together: it is HPACK that\r\nallows any octet, whereas HTTP/2 makes certain choices invalid.\r\n\r\nCloses #815.",
       "createdAt": "2021-04-23T07:53:05Z",
-      "updatedAt": "2021-05-22T11:54:04Z",
+      "updatedAt": "2021-05-24T22:40:33Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "allowed-characters",
-      "headRefOid": "4b361c02f3c2d3a2152c372855a7d0d9bd8fa95e",
+      "headRefOid": "05686eecd34445f2f3e1dd8129fc5aea6068dd46",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -32832,7 +32960,7 @@
             "abbreviatedOid": "f82ea92"
           },
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "state": "APPROVED",
           "body": "Another good cleanup",
           "createdAt": "2021-04-23T16:45:59Z",
@@ -33257,24 +33385,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NjIxODYzNjA5",
       "title": "Partially-valid request/response handling",
       "url": "https://github.com/httpwg/http2-spec/pull/847",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Closes #794.",
       "createdAt": "2021-04-23T08:00:28Z",
-      "updatedAt": "2021-04-27T02:52:34Z",
+      "updatedAt": "2021-05-24T07:21:48Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "malformed-partial",
-      "headRefOid": "133cb6f3031e56c530ad3e153ad635918335b813",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "1a0b35a30e57dfb9ca1a19d84c8b58489f07a199",
+      "closedAt": "2021-05-24T07:14:04Z",
+      "mergedAt": "2021-05-24T07:14:04Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "c57c73e2b09e94fd988b787e39dc94d01548ed69"
+      },
       "comments": [],
       "reviews": [
         {
@@ -33283,7 +33413,7 @@
             "abbreviatedOid": "133cb6f"
           },
           "author": "Lukasa",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "state": "COMMENTED",
           "body": "",
           "createdAt": "2021-04-23T16:49:04Z",
@@ -33316,6 +33446,19 @@
               "updatedAt": "2021-04-27T02:52:34Z"
             }
           ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY2NDU4Mzc2",
+          "commit": {
+            "abbreviatedOid": "1a0b35a"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Seems like a nice clear improvement",
+          "createdAt": "2021-05-24T07:13:26Z",
+          "updatedAt": "2021-05-24T07:13:26Z",
+          "comments": []
         }
       ]
     },
@@ -33360,6 +33503,346 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 850,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjUxMDczMjg3",
+      "title": "Clean closed state",
+      "url": "https://github.com/httpwg/http2-spec/pull/850",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #783.",
+      "createdAt": "2021-05-24T07:15:43Z",
+      "updatedAt": "2021-05-24T22:52:47Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "clean-closed-state",
+      "headRefOid": "969bb331d9cf2e5e76e3b53c18850a860d535ef5",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 853,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjUxMjAyMzA5",
+      "title": "Experimental begone",
+      "url": "https://github.com/httpwg/http2-spec/pull/853",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This is part of the fix for #826.  This part removes the experimental range for frame types and settings.\r\n\r\nAlso updates to use section references to RFC 8126, which replaces RFC 5226.",
+      "createdAt": "2021-05-24T10:02:05Z",
+      "updatedAt": "2021-05-24T10:56:54Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "experimental-begone",
+      "headRefOid": "f5af01011600b9c0bd6676aead40f7cc50e986e7",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY2NjI1MjMx",
+          "commit": {
+            "abbreviatedOid": "f5af010"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Nice clean change. No notes.",
+          "createdAt": "2021-05-24T10:56:53Z",
+          "updatedAt": "2021-05-24T10:56:53Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 854,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjUxMjE1Mjc5",
+      "title": "Add a changelog for priority removal",
+      "url": "https://github.com/httpwg/http2-spec/pull/854",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-05-24T10:20:26Z",
+      "updatedAt": "2021-05-24T22:51:52Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "priority-changelog",
+      "headRefOid": "abeb3191d3b7a998a7127eaa2e51927e5174922c",
+      "closedAt": "2021-05-24T22:51:52Z",
+      "mergedAt": "2021-05-24T22:51:52Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "6dba43091523758b02b944534814a4281efdfa59"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY2NjI1NjY4",
+          "commit": {
+            "abbreviatedOid": "abeb319"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-05-24T10:57:29Z",
+          "updatedAt": "2021-05-24T10:57:29Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 855,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjUxMjE2MTIy",
+      "title": "Remove dead references",
+      "url": "https://github.com/httpwg/http2-spec/pull/855",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This is going to conflict with other changes, but that's just how things roll around here.",
+      "createdAt": "2021-05-24T10:21:45Z",
+      "updatedAt": "2021-05-24T22:51:41Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "misref",
+      "headRefOid": "7a0d3417d6dfb3e0fdd8d6d40fab4c85a4fd48de",
+      "closedAt": "2021-05-24T22:51:37Z",
+      "mergedAt": "2021-05-24T22:51:37Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "acf47c11dc674421581783c49caaabc7d33ae243"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY2NjI1OTc3",
+          "commit": {
+            "abbreviatedOid": "7a0d341"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-05-24T10:57:55Z",
+          "updatedAt": "2021-05-24T10:57:55Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 856,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjUxMjIxMTQ5",
+      "title": "Copy the QUIC text regarding generic errors",
+      "url": "https://github.com/httpwg/http2-spec/pull/856",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #824.",
+      "createdAt": "2021-05-24T10:30:11Z",
+      "updatedAt": "2021-05-24T22:51:01Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "generic-error",
+      "headRefOid": "5feb4a4e6f44d45b9f1a91407b53873b74bb80f4",
+      "closedAt": "2021-05-24T22:51:01Z",
+      "mergedAt": "2021-05-24T22:51:00Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "90db688a8692accd28b7bf7859997e316759c40a"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY2NjI2NjMz",
+          "commit": {
+            "abbreviatedOid": "5feb4a4"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Reads clearly, captures the intent.",
+          "createdAt": "2021-05-24T10:58:57Z",
+          "updatedAt": "2021-05-24T10:58:57Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 857,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjUxMjM3MDIz",
+      "title": "Remote timing attacks are a thing",
+      "url": "https://github.com/httpwg/http2-spec/pull/857",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [
+        "editorial"
+      ],
+      "body": "Not sure that this needs a citation.\r\n\r\nCloses #785.",
+      "createdAt": "2021-05-24T10:56:36Z",
+      "updatedAt": "2021-05-24T22:53:12Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
+      "headRepository": "martinthomson/http2v2",
+      "headRefName": "remote-timing",
+      "headRefOid": "87e747257f0dbd513cfd32e4e8434d111ccc85d6",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY2NjI3Njk2",
+          "commit": {
+            "abbreviatedOid": "87e7472"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Yeah, I'm not sure what else we can say here. There are risks here, there are not really many mitigations available.",
+          "createdAt": "2021-05-24T11:00:23Z",
+          "updatedAt": "2021-05-24T11:00:23Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 858,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjUxMjUxMTcx",
+      "title": "Add details regarding removal of connection-specific fields.",
+      "url": "https://github.com/httpwg/http2-spec/pull/858",
+      "state": "OPEN",
+      "author": "Lukasa",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Here is some draft text. In principle we don't need any of this at all: as this text shows, all of the relevant guidance is already present in both semantics and H2. I've elected to throw up some possible text, but if we wanted to say that some or all of it is entirely redundant with existing specifications then I'm happy to do so.\r\n\r\nFixes #789.\r\nFixes #851.",
+      "createdAt": "2021-05-24T11:17:20Z",
+      "updatedAt": "2021-05-24T22:30:24Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
+      "headRepository": "Lukasa/http2-spec",
+      "headRefName": "cb-intermediaries-connection-specific",
+      "headRefOid": "1aac5648ea2b64c73165a32949d9957f4c3abb00",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY3MjQyNjkz",
+          "commit": {
+            "abbreviatedOid": "1aac564"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-24T22:28:11Z",
+          "updatedAt": "2021-05-24T22:30:24Z",
+          "comments": [
+            {
+              "originalPosition": 6,
+              "body": "```suggestion\r\n          (see <xref target=\"HTTP\" section=\"7.6.1\" />) MUST remove or replace those header fields when\r\n```",
+              "createdAt": "2021-05-24T22:28:11Z",
+              "updatedAt": "2021-05-24T22:30:24Z"
+            },
+            {
+              "originalPosition": 7,
+              "body": "```suggestion\r\n          forwarding messages. Intermediaries\r\n```\r\n\r\nI'm not sure that that adds anything.",
+              "createdAt": "2021-05-24T22:28:56Z",
+              "updatedAt": "2021-05-24T22:30:24Z"
+            },
+            {
+              "originalPosition": 8,
+              "body": "```suggestion\r\n          MUST validate any Content-Length fields before forwarding to ensure that the\r\n```",
+              "createdAt": "2021-05-24T22:29:32Z",
+              "updatedAt": "2021-05-24T22:30:24Z"
+            },
+            {
+              "originalPosition": 9,
+              "body": "Not sure if we need to say why: HTTP/1.1 uses Content-Length for framing.",
+              "createdAt": "2021-05-24T22:30:20Z",
+              "updatedAt": "2021-05-24T22:30:24Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 859,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjUxMzQ2OTQy",
+      "title": "Discuss flow control performance",
+      "url": "https://github.com/httpwg/http2-spec/pull/859",
+      "state": "OPEN",
+      "author": "Lukasa",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Brought over the QUIC text about flow control performance.\r\n\r\ncc @wtarreau\r\n\r\nResolves #784.",
+      "createdAt": "2021-05-24T13:52:24Z",
+      "updatedAt": "2021-05-24T17:13:55Z",
+      "baseRepository": "httpwg/http2-spec",
+      "baseRefName": "main",
+      "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
+      "headRepository": "Lukasa/http2-spec",
+      "headRefName": "cb-hol",
+      "headRefOid": "09e7c7182be8c9d20c0115cdab61362a42d713e5",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "Thank you Cory. After the first sentence, I'd like to add the following because I'm pretty certain it is easily overlooked, especially in gateways where there's basically no way to figure the *really* available room:\r\n```\r\nNote that advertising a larger stream window than the amount of storage effectively\r\ndedicated to the stream may sometimes result in head-of-line blocking situations by\r\nwhich incoming data for stream for which there is no more room will prevent any\r\nprogress to be made on the whole connection.\r\n```\r\n",
+          "createdAt": "2021-05-24T15:11:49Z",
+          "updatedAt": "2021-05-24T15:12:17Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Under what circumstances can that happen?",
+          "createdAt": "2021-05-24T17:13:55Z",
+          "updatedAt": "2021-05-24T17:13:55Z"
+        }
+      ],
+      "reviews": []
     }
   ]
 }
