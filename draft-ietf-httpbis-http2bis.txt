@@ -143,6 +143,7 @@ Table of Contents
      10.6.  Use of Compression
      10.7.  Use of Padding
      10.8.  Privacy Considerations
+     10.9.  Remote Timing Attacks
    11. IANA Considerations
      11.1.  Registration of HTTP/2 Identification Strings
      11.2.  Frame Type Registry
@@ -3272,6 +3273,21 @@ Table of Contents
    Because the PING and SETTINGS frames solicit immediate responses,
    they can be used by an endpoint to measure latency to their peer.
    This might have privacy implications in certain scenarios.
+
+10.9.  Remote Timing Attacks
+
+   Remote timing attacks extract secrets from servers by observing
+   variations in the time that servers take when processing requests
+   that use secrets.  HTTP/2 enables concurrent request creation and
+   processing, which can give attackers better control over when request
+   processing commences.  Multiple HTTP/2 requests can be included in
+   the same IP packet or TLS record.  HTTP/2 can therefore make remote
+   timing attacks more efficient by eliminating variability in request
+   delivery, leaving only request order and the delivery of responses as
+   sources of timing variability.
+
+   Ensuring that processing time is not dependent on the value of
+   secrets is the best defense against any form of timing attack.
 
 11.  IANA Considerations
 

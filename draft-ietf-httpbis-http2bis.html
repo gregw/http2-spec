@@ -1228,6 +1228,9 @@ address div.right {
               <li class="ulEmpty compact toc" id="section-toc.1-1.10.2.8">
                 <p id="section-toc.1-1.10.2.8.1"><a href="#section-10.8" class="xref">10.8</a>.  <a href="#name-privacy-considerations" class="xref">Privacy Considerations</a></p>
 </li>
+              <li class="ulEmpty compact toc" id="section-toc.1-1.10.2.9">
+                <p id="section-toc.1-1.10.2.9.1"><a href="#section-10.9" class="xref">10.9</a>.  <a href="#name-remote-timing-attacks" class="xref">Remote Timing Attacks</a></p>
+</li>
             </ul>
 </li>
           <li class="ulEmpty compact toc" id="section-toc.1-1.11">
@@ -4906,6 +4909,22 @@ address div.right {
           Because the PING and SETTINGS frames solicit immediate responses, they can be used by an
           endpoint to measure latency to their peer.  This might have privacy implications in
           certain scenarios.<a href="#section-10.8-4" class="pilcrow">¶</a></p>
+</section>
+<section id="section-10.9">
+        <h3 id="name-remote-timing-attacks">
+<a href="#section-10.9" class="section-number selfRef">10.9. </a><a href="#name-remote-timing-attacks" class="section-name selfRef">Remote Timing Attacks</a>
+        </h3>
+<p id="section-10.9-1">
+          Remote timing attacks extract secrets from servers by observing variations in the time
+          that servers take when processing requests that use secrets. HTTP/2 enables concurrent
+          request creation and processing, which can give attackers better control over when request
+          processing commences.  Multiple HTTP/2 requests can be included in the same IP packet or
+          TLS record.  HTTP/2 can therefore make remote timing attacks more efficient by eliminating
+          variability in request delivery, leaving only request order and the delivery of responses
+          as sources of timing variability.<a href="#section-10.9-1" class="pilcrow">¶</a></p>
+<p id="section-10.9-2">
+          Ensuring that processing time is not dependent on the value of secrets is the best defense
+          against any form of timing attack.<a href="#section-10.9-2" class="pilcrow">¶</a></p>
 </section>
 </section>
 </div>
