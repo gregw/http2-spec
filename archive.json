@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-05-25T01:08:46.528614+00:00",
+  "timestamp": "2021-05-27T01:35:17.215760+00:00",
   "repo": "httpwg/http2-spec",
   "labels": [
     {
@@ -18275,7 +18275,7 @@
       "id": "MDU6SXNzdWU3MzExNzYwMjU=",
       "title": "Enabling remote timing attacks",
       "url": "https://github.com/httpwg/http2-spec/issues/785",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -18286,8 +18286,8 @@
       ],
       "body": "https://portswigger.net/daily-swig/researchers-exploit-http-2-wpa3-protocols-to-stage-highly-efficient-timeless-timing-attacks describes how HTTP/2 can be used to remove some network-induced jitter from the timing measurements. If your server has timing side channels, then putting requests that can be compared in the same IP packet ensures that the server receives them at the same time. This doesn't help if timing differences are masked by server queuing, CDNs or load balancers, or response delivery, but it can help reduce measurement noise.\r\n\r\nConsider documenting this.",
       "createdAt": "2020-10-28T07:16:41Z",
-      "updatedAt": "2021-05-24T07:51:55Z",
-      "closedAt": null,
+      "updatedAt": "2021-05-26T01:20:27Z",
+      "closedAt": "2021-05-26T01:20:27Z",
       "comments": [
         {
           "author": "mnot",
@@ -18603,7 +18603,7 @@
       "id": "MDU6SXNzdWU3MzY0OTgwNTA=",
       "title": "Consider loosening requirement for clients to reject connection-specific header fields",
       "url": "https://github.com/httpwg/http2-spec/issues/789",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "jyasskin",
       "authorAssociation": "NONE",
       "assignees": [
@@ -18612,8 +18612,8 @@
       "labels": [],
       "body": "I have no personal knowledge of this issue, but it came up on the #whatwg IRC channel. https://megamorf.gitlab.io/2019/08/27/safari-nsposixerrordomain-100-error-with-nginx-and-apache/ describes Safari rejecting responses that contain the `upgrade` header field, while other browsers accept it. It'd be good to converge the major clients on a single behavior and, if that's not the behavior currently specified, update the spec to match.",
       "createdAt": "2020-11-04T23:47:08Z",
-      "updatedAt": "2021-05-24T07:51:08Z",
-      "closedAt": null,
+      "updatedAt": "2021-05-26T01:16:57Z",
+      "closedAt": "2021-05-26T01:16:57Z",
       "comments": [
         {
           "author": "mnot",
@@ -19424,7 +19424,7 @@
       ],
       "body": "new registry for fields; see <https://httpwg.org/http-core/draft-ietf-httpbis-semantics-latest.html#field.name.registration>",
       "createdAt": "2021-04-22T08:52:29Z",
-      "updatedAt": "2021-05-24T09:16:39Z",
+      "updatedAt": "2021-05-25T07:18:16Z",
       "closedAt": null,
       "comments": [
         {
@@ -19433,6 +19433,13 @@
           "body": "@reschke, #820 removed upgrade and changed the registration of this header field to:\r\n\r\n> This section marks the `HTTP2-Settings` header field registered in Section 11.5 of [RFC7540] as obsoleted.\r\n\r\nIs that OK?  Or would you prefer a complete registration update, as in:\r\n\r\nField Name: HTTP2-Settings\r\nStatus: Standard\r\nRef.: Section 11.5 of RFC 7540\r\nComments: This field is obsoleted (this document).\r\n",
           "createdAt": "2021-05-24T09:16:39Z",
           "updatedAt": "2021-05-24T09:16:39Z"
+        },
+        {
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "That should be fine.",
+          "createdAt": "2021-05-25T07:18:16Z",
+          "updatedAt": "2021-05-25T07:18:16Z"
         }
       ]
     },
@@ -19467,7 +19474,7 @@
       "id": "MDU6SXNzdWU4OTkzODEyMjc=",
       "title": "Intermediaries and connection-specific headers",
       "url": "https://github.com/httpwg/http2-spec/issues/851",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -19478,8 +19485,8 @@
       ],
       "body": "Upgrade, Transfer-Encoding, Content-Length, Connection, and anything listed in Connection MUST NOT be forwarded without modification.  See also #789.",
       "createdAt": "2021-05-24T07:35:02Z",
-      "updatedAt": "2021-05-24T07:51:08Z",
-      "closedAt": null,
+      "updatedAt": "2021-05-26T01:16:57Z",
+      "closedAt": "2021-05-26T01:16:57Z",
       "comments": [
         {
           "author": "martinthomson",
@@ -32919,7 +32926,7 @@
       "labels": [],
       "body": "This encodes the conclusions from interim discussions:\r\n\r\n1. CR, LF, and NUL cannot appear anywhere in field names or values.\r\n2. SP and HTAB cannot appear at the start or end of field names or\r\nvalues.\r\n3. COLON cannot appear anywhere in a field name, except for the colon at\r\nthe start of a pseudo-header field name.\r\n\r\nThe strong requirements about validating fields according to ABNF has\r\nbeen replaced.\r\n\r\nThe text is clearer about how the pieces fit together: it is HPACK that\r\nallows any octet, whereas HTTP/2 makes certain choices invalid.\r\n\r\nCloses #815.",
       "createdAt": "2021-04-23T07:53:05Z",
-      "updatedAt": "2021-05-24T22:40:33Z",
+      "updatedAt": "2021-05-26T22:03:28Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
@@ -32951,6 +32958,41 @@
           "body": "@mnot, take another look.  I've refactored your suggestion.",
           "createdAt": "2021-05-20T04:27:06Z",
           "updatedAt": "2021-05-20T04:27:06Z"
+        },
+        {
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Yes.",
+          "createdAt": "2021-05-25T07:22:30Z",
+          "updatedAt": "2021-05-25T07:22:30Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@gregw, if you can suggest text that would address your remaining concerns, that would be good, but I think we're going to include this text in the next draft.  Of course, there will be ample time to improve on this; we just want to make sure that we have an updated draft to discuss at the upcoming interim meeting.",
+          "createdAt": "2021-05-26T01:21:58Z",
+          "updatedAt": "2021-05-26T01:21:58Z"
+        },
+        {
+          "author": "gregw",
+          "authorAssociation": "NONE",
+          "body": "@martinthomson What I think is missing is a description of what this change is trying to achieve.    \r\n\r\nThe text identifies that there is a set of `valid-hpack-fields`, but notes that that is a super-set of of `valid-HTTP-fields`.   \r\nIt then gives text description of what the set of `valid-h2-fields` is, but it is not clear exactly what the intent of that set is meant to be?   The possibilities are:\r\n\r\n1. `valid-h2-fields` == `valid-HTTP-fields-with-lowercase-names` union `h2-pseudo-fields`.    But if this was the case then why not define it in terms of the HTTP ABNF?\r\n2. `valid-h2-fields` == `valid-HTTP-fields-with-lowercase-names` union `h2-pseudo-fields` union `invalid-fields-from-grandfathered-implementations`.    This seems a strange thing to do, but the motivation was originally given that this was describing what existing implementations do?   If this is the case then it should be described as such.\r\n3. `valid-h2-fields` == `valid-hpack-fields` intersection `fields-safe-from-encapsulation-attacks`.  I think this is what the text is actually striving for, but a) it would be good to say so; b) it is unclear to me why h2 needs a superset of option 1. above... if so it should be said why.\r\n\r\nIf it is indeed option 3. then I assume that there are some fields in the set `valid-h2-fields` that are nether in the `valid-HTTP-fields` nor `h2-pseudo-fields` sets.   What are those fields and what should an implementation do with them?  We are told later in the update that if we are an intermediary then we can validate strictly against the HTTP ABNF and that if we don't we risk invalid fields (and by inference of the section title encapsulation attacks).     But what do we do with those fields if we are not an intermediary?    Do we pass them onto our applications and let them work it out that they are not members of `valid-HTTP-fields`?    There is nothing there that says we MAY treat such messages as malformed - so at the very least, it would be a good addition to the text to say that non-intermediaries can do stricter validation.\r\n\r\nSo in short, I can see lots of text defining `valid-h2-headers`, but it is entirely unmotivated as  to why it is << `valid-hpack-fields` and >> `valid-HTTP-fields-with-lowercase-names`.\r\n\r\nFinally, to harp on my original complaint,  I still do not understand why `valid-h2-fields` is defined in 4 bullet points of prose  that have already confused some readers.  There is a paragraph about how field names have to be lowercase and then the bullet points ignore that and define all visible characters except space (so if space is visible does that mean tab, CR, LF are also visible?) and except colon. \r\nSome simple ABNF would be so much better:\r\n```ABNF\r\nh2-field-name = h2-pseudo-field-name / 1*fn-char\r\nh2-pseudo-field-name = \":\" 1*fn-char ; or list of actual names\r\nfn-char = %x21-39 / %x3b-40 / %x5B-7E ; visible symbols except ':', digits and lowercase alpha\r\n\r\nh2-field-value = 1*fv-char\r\nfv-char = %x01-09 / %x0b-0c / %x0e-ff ; exclude null, CR and LF\r\n```\r\n\r\nOr better yet, just go with HTTP field names, but with names in lower-case:\r\n```ABNF\r\nh2-field-name = h2-pseudo-field-name / 1*fn-char\r\nh2-pseudo-field-name = \":\" 1*fn-char ; or list of actual names\r\nfn-char = \"!\" / \"#\" / \"$\" / \"%\" / \"&\" / \"'\" / \"*\" / \"+\" / \"-\" / \".\" / \"^\" / \"_\" / \"`\" / \"|\" / \"~\" / DIGIT / %x61-7A\r\n\r\nh2-field-value = field-value\r\n```\r\n\r\n\r\n\r\nEdit: removed comment about ESC... I would looking at an ASCII table from before I was born!\r\n\r\n",
+          "createdAt": "2021-05-26T05:40:13Z",
+          "updatedAt": "2021-05-26T05:42:07Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> It then gives text description of what the set of `valid-h2-fields` is\r\n\r\nNo it doesn't. It gives a text description of a set of invalid H2 fields. The text does not say these are the only limitations on h2 field validity (noting that there is also an ABNF description that applies when -semantics applies), neither does it say that any field that doesn't contain any invalid characters as described in this section is valid.\r\n\r\nI do think the text could be clearer in saying that this is a non-exhaustive list of reasons why a header field may be invalid, but at the same time I'm reluctant to have this document spend too much time re-hashing reasons that exist in other specifications that are presumed to apply.\r\n\r\n> But what do we do with those fields if we are not an intermediary? Do we pass them onto our applications and let them work it out that they are not members of `valid-HTTP-fields`? There is nothing there that says we MAY treat such messages as malformed - so at the very least, it would be a good addition to the text to say that non-intermediaries can do stricter validation.\r\n\r\nThis question is one for -semantics, not for HTTP/2. -semantics gives the answer to this: you MUST NOT emit (\u00a7 2.2), but as a receiver you are cautioned that (\u00a7 2.3):\r\n\r\n> A recipient should parse a received protocol element defensively, with only marginal expectations that the element will conform to its ABNF grammar and fit within a reasonable buffer size.\r\n\r\nAdditionally (\u00a7 2.4):\r\n\r\n> A recipient must interpret a received protocol element according to the semantics defined for it by this specification, including extensions to this specification, unless the recipient has determined (through experience or configuration) that the sender incorrectly implements what is implied by those semantics. For example, an origin server might disregard the contents of a received Accept-Encoding header field if inspection of the User-Agent header field indicates a specific implementation version that is known to fail on receipt of certain content codings.\r\n>\r\n> Unless noted otherwise, a recipient may attempt to recover a usable protocol element from an invalid construct. HTTP does not define specific error handling mechanisms except when they have a direct impact on security, since different applications of the protocol require different error handling strategies. For example, a Web browser might wish to transparently recover from a response where the Location header field doesn't parse according to the ABNF, whereas a systems control client might consider any form of error recovery to be dangerous.\r\n\r\nThis gives you the permission you want: you are encouraged to parse the field defensively and you may attempt to recover, which implies that by default you may fail, and that -semantics does not specify exactly how you will handle these failures. HTTP/2 continues to grant your application that freedom. The specification does not bind you: you can handle this as you want.",
+          "createdAt": "2021-05-26T11:52:14Z",
+          "updatedAt": "2021-05-26T11:52:14Z"
+        },
+        {
+          "author": "gregw",
+          "authorAssociation": "NONE",
+          "body": "> > It then gives text description of what the set of `valid-h2-fields` is\r\n> \r\n> No it doesn't. It gives a text description of a set of invalid H2 fields. \r\n\r\nOK True.  Which is actually worse, as it leaves the set of `valid-h2-fields` undefined other than we know it is a subset of the compliment of the set of invalid fields define here.\r\n\r\n> The text does not say these are the only limitations on h2 field validity\r\n\r\nAlso worse, as it means the document only vaguely defines validity.   There is actually no definition of what is a valid h2-field.\r\n\r\n> This question is one for -semantics, not for HTTP/2. -semantics gives the answer to this: you MUST NOT emit (\u00a7 2.2), but as a receiver you are cautioned that (\u00a7 2.3):\r\n\r\nThis reason could be used to say that there should be no additional invalidity check in this document.  Just allow any hpack-valid field and leave the rest to be a matter of semantics.\r\nThe fields excluded by this definition are only dangerous if forwarded, which is already covered by \"Intermediary Encapsulation Attacks\" section that suggests that full HTTP ABNF grammar should be applied (in addition to the vaguely defined exclusions of \"HTTP Fields\").\r\n\r\nSo I'm back to why is this document in-precisely defining valid/invalid h2-fields.  It is not for intermediaries as there is a section in the document dedicated to that.  It is not for locally interpreted HTTP as you say  HTTP semantics should be applied.      Why does this document say that a field name containing space is invalid, yet one containing a double quote is not?   Neither are valid HTTP, both are valid hpack. There is no good reason I can see for either and whilst I don't know of any specific attack that either could be used for, I would not be surprised if both could be used to some evil ends.\r\n\r\nThis vague definition is going to have a significant carbon footprint.   Many Implementations will ultimately end up double validating field names: once to exclude the `invalid-h2-field`s in their h2 layer and then later in their semantic layer to include only the `valid-HTTP-field`s.      Double validation could be avoided if this document either didn't restrict field validity or precisely defined valid fields as a subset of `valid-HTTP-field`s so that semantic layers could trust the fields received from their h2 layers as being valid HTTP.\r\n\r\nMaybe there is a reason for this double validation and the resulting CPU cycles, but I have yet to see why validity is only partially defined.\r\n\r\n\r\n\r\n",
+          "createdAt": "2021-05-26T22:02:56Z",
+          "updatedAt": "2021-05-26T22:03:28Z"
         }
       ],
       "reviews": [
@@ -33377,6 +33419,19 @@
               "updatedAt": "2021-05-22T11:54:04Z"
             }
           ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY3NDc1MzE4",
+          "commit": {
+            "abbreviatedOid": "05686ee"
+          },
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-05-25T07:22:57Z",
+          "updatedAt": "2021-05-25T07:22:57Z",
+          "comments": []
         }
       ]
     },
@@ -33516,7 +33571,7 @@
       "labels": [],
       "body": "Closes #783.",
       "createdAt": "2021-05-24T07:15:43Z",
-      "updatedAt": "2021-05-24T22:52:47Z",
+      "updatedAt": "2021-05-26T11:59:35Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
@@ -33527,7 +33582,50 @@
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "Thanks Martin for working on this!\r\nRegarding the following:\r\n> Endpoints  SHOULD NOT use timers for this purpose.\r\n\r\nI'd add \"unless they have a way to know the timer is at least as large as the connection's RTT\". While I'm not using timers myself, I can easily imagine that for some implementations that permanently monitor their connections' quality of service it could be safe and easy to use timers.\r\n\r\nAfter the list of proposed methods, I would add the stream counter one because I think it will often be the easiest one to implement: \"seeing at least SETTINGS_MAX_CONCURRENT_STREAMS new streams created since the RST_STREAM frame was sent also proves it was received and processed\".\r\n\r\nWhat I'm unsure about is whether we should explicitly request for implementations to be careful not to send extra RST_STREAM during this period or if we should only rely on other mentions for this, or leave it implied by \"no frame other than ...\".\r\n",
+          "createdAt": "2021-05-26T02:59:50Z",
+          "updatedAt": "2021-05-26T02:59:50Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "The timers thing is something that I realized might run afoul of certain practices that we know to be common.  Let's say that you have large send buffers (for performance) and you enqueue more than a BDP.  In that case, if the peer resets the stream, you might have committed to writing so much that even after a few round trips, the buffer is still draining.\r\n\r\nNow maybe that is enough cause to drop the connection, but it's a practice that isn't technically *wrong*.  Enforcing this on a timer makes that more risky.\r\n\r\nAs for recycling the entire stream limit, I don't know if it is true that it is easy to implement.  There are obvious ways to implement it that are easy but also obviously wrong.  I would prefer not to include it.\r\n\r\nI'm not following your point about extra RST_STREAM frames.  Do you mean sending RST_STREAM for the same stream more than once?  There is no point in doing that and I think we already prohibit that.  If an endpoint has to reset other streams, I don't think that we can stop that.",
+          "createdAt": "2021-05-26T03:42:19Z",
+          "updatedAt": "2021-05-26T03:42:19Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "I agree that timers are far from being perfect especially in window-in-window environments like H2, but every implementation has some at least for communication timeouts. In addition, in the case you mention about huge data being queued, that's true but in such a case each such data has to reset the timer. And I also agree that extra data from other streams could artificially delay the resetted stream's final data (but that implicitly increases the measured RTT as well). I don't think we should discourage implementations from doing this if that's easier for them and they can get it right (don't forget that often the alternative is to flood with RST_STREAM in the other direction for each and every frame receivd in closed state). But you're probably right that we should not encourage it either because it's easy to get it wrong. Maybe the only thing to do is to turn the \"SHOULD NOT\" into a non-normative \"should not\".\r\n\r\nRegarding the recycling of the streams, yes it's easy to implement. You just need a counter, which will work exactly like a timeout except that it's based on stream counts. So when resetting a stream we'd just have to set its expiration value to current stream count plus SETTINGS_MAX_CONCURRENT_STREAMS and you're sure that the other end has necessarily received your reset otherwise it would be blocked at a lower value. And I'm pretty sure that it is what I'll implement in the end (much easier and cleaner than sending a PING frame after each RST_STREAM as I initially thought about).\r\n\r\nRegarding the extra RST_STREAM frames, yes that's what I mean. We do prohibit that but we offer no easy way to help against doing it, except in this discussion, which is exactly the point :-)  The problem starts by the spec explicitly asking not to send anything other than PRIORITY on a closed stream and suggesting to use RST_STREAM to close a stream. But the reality in field is that a closed stream is a stream that doesn't exist anymore (i.e. not attached to any upper application layer) and generally the only possible response to this is to send RST_STREAM to signal that the stream is closed (analogy to the \"broken pipe\" between processes or simply TCP RST). I'm pretty sure we fell into that situation in the initial implementation we had in haproxy. RST_STREAM should be seen more as an \"abort\" signal but given that it's often used to report processing errors, it's natural to use it as well to signal that the stream targetted by a received frame has just disappeared.\r\n\r\nOften I've been wondering if it wouldn't have been easier to refer as \"non-existing stream\" or \"unknown stream\" for those that have been definitely closed, and differentiate them from \"closed\" ones which are still known. We could then say that a closed stream disappears immediately on END_STREAM+half-closed and on receipt of RST_STREAM, but that it should be kept in closed state for some time after sending RST_STREAM. Then instead of speaking about \"stream closed by RST_STREAM\" or other variants we could simply speak about \"closed stream\" versus \"unknown stream\" and have simple rules for the latter, especially since the rules are the same for frames received on these closed streams and those received on idle streams. But I'm a bit wary of revisiting all places mentioning \"closed\" :-/",
+          "createdAt": "2021-05-26T05:17:39Z",
+          "updatedAt": "2021-05-26T05:17:39Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "body": "OK, that's a bunch of stuff to unpack.\r\n\r\nOn the timer issue, I think that you just convinced me that dissuading people from using timers is the right idea.  It's not a hard rule, so people can use timers if they want.  I could just remove the text about timers, but it seems to me like people will try to use timers and fail majestically.  The text necessary to explain the pitfalls would be more involved than I think the document needs.\r\n\r\nOn the stream limit thing, I'm convinced by the potential for it to be easy to implement (it's more state than I would keep, but that's your call).  However, explaining both how to do that AND explaining why this is OK to do would also take a lot of words.  You will note that the other options we present are pretty short (send SETTINGS, receive an ACK; send PING, receive an ACK) and they are pretty obvious.  The logic here is less direct.\r\n\r\nOn the multiple RST_STREAM thing, could you open an issue?  If people are sending multiple RST_STREAM frames for the same stream and that isn't causing problems, AND there is a good reason to do it, THEN we should document that properly.",
+          "createdAt": "2021-05-26T06:08:03Z",
+          "updatedAt": "2021-05-26T06:08:03Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "For timers, I think that just lowercasing \"should-not\" will be sufficient, no need for more explanation.\r\nFor the streams count, I don't think we need the put the demonstration, simply saying that \"or at least SETTINGS_MAX_CONCURRENT_STREAMS new streams were initiated by the peer\" is sufficient, it's left as an exercice to the reader to verify why if they want.\r\n\r\nFor the RST_STREAM one I could open an issue, it's just still unclear to me how to address it other than by this precise one. So I think that the current issue can magically solve plenty of small ones because it fixes the root cause instead of addressing individual side effects. Maybe Cory has an opinion about it ?",
+          "createdAt": "2021-05-26T07:12:50Z",
+          "updatedAt": "2021-05-26T07:12:50Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Regarding multiple RST_STREAM I think there are only two states: either you have sent an RST_STREAM and you don't think your peer has seen it yet, in which case you should ignore frames sent on that stream, or you have sent it and you think your peer _has_ seen it but is still sending non-PRIORITY frames for that stream, in which case you should connection error with PROTOCOL_ERROR.",
+          "createdAt": "2021-05-26T11:59:34Z",
+          "updatedAt": "2021-05-26T11:59:34Z"
+        }
+      ],
       "reviews": []
     },
     {
@@ -33701,7 +33799,7 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NjUxMjM3MDIz",
       "title": "Remote timing attacks are a thing",
       "url": "https://github.com/httpwg/http2-spec/pull/857",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
@@ -33710,17 +33808,19 @@
       ],
       "body": "Not sure that this needs a citation.\r\n\r\nCloses #785.",
       "createdAt": "2021-05-24T10:56:36Z",
-      "updatedAt": "2021-05-24T22:53:12Z",
+      "updatedAt": "2021-05-26T01:20:27Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
       "headRepository": "martinthomson/http2v2",
       "headRefName": "remote-timing",
       "headRefOid": "87e747257f0dbd513cfd32e4e8434d111ccc85d6",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-05-26T01:20:27Z",
+      "mergedAt": "2021-05-26T01:20:27Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "8cd154799f2fc0dd925a58292f772d0685ed631e"
+      },
       "comments": [],
       "reviews": [
         {
@@ -33735,6 +33835,19 @@
           "createdAt": "2021-05-24T11:00:23Z",
           "updatedAt": "2021-05-24T11:00:23Z",
           "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY3MzEwNzQ2",
+          "commit": {
+            "abbreviatedOid": "87e7472"
+          },
+          "author": "mnot",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-05-25T01:14:09Z",
+          "updatedAt": "2021-05-25T01:14:09Z",
+          "comments": []
         }
       ]
     },
@@ -33743,24 +33856,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NjUxMjUxMTcx",
       "title": "Add details regarding removal of connection-specific fields.",
       "url": "https://github.com/httpwg/http2-spec/pull/858",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "Lukasa",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Here is some draft text. In principle we don't need any of this at all: as this text shows, all of the relevant guidance is already present in both semantics and H2. I've elected to throw up some possible text, but if we wanted to say that some or all of it is entirely redundant with existing specifications then I'm happy to do so.\r\n\r\nFixes #789.\r\nFixes #851.",
       "createdAt": "2021-05-24T11:17:20Z",
-      "updatedAt": "2021-05-24T22:30:24Z",
+      "updatedAt": "2021-05-26T01:16:57Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
-      "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
+      "baseRefOid": "6dba43091523758b02b944534814a4281efdfa59",
       "headRepository": "Lukasa/http2-spec",
       "headRefName": "cb-intermediaries-connection-specific",
-      "headRefOid": "1aac5648ea2b64c73165a32949d9957f4c3abb00",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "1283507393d407d01be19e32f606c7dcdf4a51e3",
+      "closedAt": "2021-05-26T01:16:57Z",
+      "mergedAt": "2021-05-26T01:16:57Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "03c03a2f67241dd531302cd0bb32e789a6f8a1b4"
+      },
       "comments": [],
       "reviews": [
         {
@@ -33800,6 +33915,26 @@
               "updatedAt": "2021-05-24T22:30:24Z"
             }
           ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY3NDIyNTMw",
+          "commit": {
+            "abbreviatedOid": "1aac564"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-25T06:10:23Z",
+          "updatedAt": "2021-05-25T06:10:24Z",
+          "comments": [
+            {
+              "originalPosition": 8,
+              "body": "Hmm, I don't think that wording is acceptable: it implies that intermediaries are obligated to buffer all messages before they forward them on, which I don't think they'll do. We could say MUST validate any Content-Length fields _when_ forwarding, I suppose.",
+              "createdAt": "2021-05-25T06:10:24Z",
+              "updatedAt": "2021-05-25T06:10:24Z"
+            }
+          ]
         }
       ]
     },
@@ -33815,13 +33950,13 @@
       "labels": [],
       "body": "Brought over the QUIC text about flow control performance.\r\n\r\ncc @wtarreau\r\n\r\nResolves #784.",
       "createdAt": "2021-05-24T13:52:24Z",
-      "updatedAt": "2021-05-24T17:13:55Z",
+      "updatedAt": "2021-05-26T17:20:52Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
-      "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
+      "baseRefOid": "8cd154799f2fc0dd925a58292f772d0685ed631e",
       "headRepository": "Lukasa/http2-spec",
       "headRefName": "cb-hol",
-      "headRefOid": "09e7c7182be8c9d20c0115cdab61362a42d713e5",
+      "headRefOid": "ffe4de7d69219fdfc97a7d7efc4465caca1364df",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -33840,9 +33975,58 @@
           "body": "Under what circumstances can that happen?",
           "createdAt": "2021-05-24T17:13:55Z",
           "updatedAt": "2021-05-24T17:13:55Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "@Lukasa basically any time on the forward path: if you only count on the local buffer you're using to receive a stream, the window will always be ridiculously low, while you *know* that you have plenty of buffers on the other side (e.g. forwarding to H1, which is dedicated to your stream, you can count on the H1 buffers and system socket buffers). When forwarding to H2 you can theoretically at least count on min(stream_window,connection_window,buffer room+system buffers), though it can be quite hard to figure.\r\n\r\nThe problem with a multiplexed protocol (when doing fctl-over-fctl like H2 does with TCP) is that your per-stream buffers are *always* smaller than the connection-level buffers (that include the system's huge socket buffers), which are usually automatically tuned to accommodate the BDP. So in the end relying on stream buffers only implies you can never reach the BDP and will be forced to limit the single-stream bandwidth. This problem doesn't happen with other protocols like QUIC simply because there's no need in-order buffering in the system that you have to rely on.\r\n\r\nIn the end, a reasonable approach consists in having a configurable margin on top of the per-stream buffer room to figure what to advertise, but we need to warn about the risks of advertising too large a window.",
+          "createdAt": "2021-05-26T03:13:35Z",
+          "updatedAt": "2021-05-26T03:13:35Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Hmm, sorry @wtarreau but I don't see how that relates to the original note you gave.\r\n\r\nWhere is there a head-of-line blocking issue? Having small stream window sizes prevents a single stream reaching full network performance, sure, but that isn't a head-of-line blocking problem. It's a window management problem. If you have multiple streams, all with small windows but all of which can make progress, you can in principal avoid any issues with window management.\r\n\r\nWhat am I missing that brings HOL blocking into play?",
+          "createdAt": "2021-05-26T11:40:37Z",
+          "updatedAt": "2021-05-26T11:40:37Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "Sorry Cory if my explanation was not clear. What I meant is that when you start to use reasonable (i.e. small) windows for your streams, you immediately see the network performance become horrible, despite all the buffering capacity around (kernel etc), only because of the streams window. I've had users complain about 5 Mbps uploads for example with 64kB windows :-/ As such it's extremely tempting to overprovision the stream window to make it cover some of the extra buffers available around that you're almost certain exists (i.e. the output buffer for where that frame is going to be forwarded), but when starting to play with this you *risk* HOL because it's often very hard to be certain about *really* available room (i.e. if you forward that over H2 and several streams consider that same room as available etc). Window-in-window is a very well-known anti-pattern and we knew it was going to hit one way or another and we have to live with it here. For most use cases where a browser is the sole owner of a connection, it's trivial to advertise huge windows and deal with it this way (no real risk that the browser blocks itself). When coalescing multiple agents it becomes quite visible a problem. I hope I managed to make it clearer this time, otherwise do not hesitate to let me know :-)",
+          "createdAt": "2021-05-26T16:09:09Z",
+          "updatedAt": "2021-05-26T16:09:09Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Thanks Willy, this is definitely clarifying things. So let me try to verify my understanding in bullets.\r\n\r\n1. The default per-stream window size (64kB), and other small per-stream window sizes, has performance problems over fat links.\r\n\r\n    This is true. It is not necessarily true if you have multiple streams in flight and your connection window is larger, but it is definitely true for single streams.\r\n    \r\n2. To that end it is tempting to advertise larger stream windows, to improve throughput.\r\n\r\n3. However that window may not be available in the target logical stream, such that if the user actually consumes it your application would have to buffer it.\r\n\r\n    Possible reasons for this include the TCP send buffer not having room, the target H2 connection window not having room, the target H2 stream window not having room, etc.\r\n\r\nSo this is definitely a resource management issue. Presumably the reason there's an HOL issue here is that, in response to needing to buffer on the outbound side, you stop reading from the H2 connection.\r\n\r\nI can think of a few ways to manage this, but this isn't really the forum for that kind of engineering chat. :wink: Instead, I'll say that I think the current text covers this. Specifically, the text says \"bigger windows improve performance, but you need to bear in mind the resource exhaustion concerns elsewhere in this document\". Should we be saying anything else more specific?",
+          "createdAt": "2021-05-26T17:20:52Z",
+          "updatedAt": "2021-05-26T17:20:52Z"
         }
       ],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY4NTIxNjky",
+          "commit": {
+            "abbreviatedOid": "09e7c71"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-26T01:19:16Z",
+          "updatedAt": "2021-05-26T01:19:26Z",
+          "comments": [
+            {
+              "originalPosition": 12,
+              "body": "QUIC says \"improve performance\", which I think is better than \"mitigate this bottleneck\".  bottleneck is a colloquialism that might be hard to understand, and mitigation isn't what you want (you want avoidance in that case).",
+              "createdAt": "2021-05-26T01:19:16Z",
+              "updatedAt": "2021-05-26T01:19:26Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
