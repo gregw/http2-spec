@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-05-27T01:35:17.215760+00:00",
+  "timestamp": "2021-05-30T02:12:43.858946+00:00",
   "repo": "httpwg/http2-spec",
   "labels": [
     {
@@ -32926,7 +32926,7 @@
       "labels": [],
       "body": "This encodes the conclusions from interim discussions:\r\n\r\n1. CR, LF, and NUL cannot appear anywhere in field names or values.\r\n2. SP and HTAB cannot appear at the start or end of field names or\r\nvalues.\r\n3. COLON cannot appear anywhere in a field name, except for the colon at\r\nthe start of a pseudo-header field name.\r\n\r\nThe strong requirements about validating fields according to ABNF has\r\nbeen replaced.\r\n\r\nThe text is clearer about how the pieces fit together: it is HPACK that\r\nallows any octet, whereas HTTP/2 makes certain choices invalid.\r\n\r\nCloses #815.",
       "createdAt": "2021-04-23T07:53:05Z",
-      "updatedAt": "2021-05-26T22:03:28Z",
+      "updatedAt": "2021-05-28T07:20:44Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "a5cccab1a58c5cadcbe2314f7bcb2dbf38accb45",
@@ -32993,6 +32993,41 @@
           "body": "> > It then gives text description of what the set of `valid-h2-fields` is\r\n> \r\n> No it doesn't. It gives a text description of a set of invalid H2 fields. \r\n\r\nOK True.  Which is actually worse, as it leaves the set of `valid-h2-fields` undefined other than we know it is a subset of the compliment of the set of invalid fields define here.\r\n\r\n> The text does not say these are the only limitations on h2 field validity\r\n\r\nAlso worse, as it means the document only vaguely defines validity.   There is actually no definition of what is a valid h2-field.\r\n\r\n> This question is one for -semantics, not for HTTP/2. -semantics gives the answer to this: you MUST NOT emit (\u00a7 2.2), but as a receiver you are cautioned that (\u00a7 2.3):\r\n\r\nThis reason could be used to say that there should be no additional invalidity check in this document.  Just allow any hpack-valid field and leave the rest to be a matter of semantics.\r\nThe fields excluded by this definition are only dangerous if forwarded, which is already covered by \"Intermediary Encapsulation Attacks\" section that suggests that full HTTP ABNF grammar should be applied (in addition to the vaguely defined exclusions of \"HTTP Fields\").\r\n\r\nSo I'm back to why is this document in-precisely defining valid/invalid h2-fields.  It is not for intermediaries as there is a section in the document dedicated to that.  It is not for locally interpreted HTTP as you say  HTTP semantics should be applied.      Why does this document say that a field name containing space is invalid, yet one containing a double quote is not?   Neither are valid HTTP, both are valid hpack. There is no good reason I can see for either and whilst I don't know of any specific attack that either could be used for, I would not be surprised if both could be used to some evil ends.\r\n\r\nThis vague definition is going to have a significant carbon footprint.   Many Implementations will ultimately end up double validating field names: once to exclude the `invalid-h2-field`s in their h2 layer and then later in their semantic layer to include only the `valid-HTTP-field`s.      Double validation could be avoided if this document either didn't restrict field validity or precisely defined valid fields as a subset of `valid-HTTP-field`s so that semantic layers could trust the fields received from their h2 layers as being valid HTTP.\r\n\r\nMaybe there is a reason for this double validation and the resulting CPU cycles, but I have yet to see why validity is only partially defined.\r\n\r\n\r\n\r\n",
           "createdAt": "2021-05-26T22:02:56Z",
           "updatedAt": "2021-05-26T22:03:28Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> The fields excluded by this definition are only dangerous if forwarded, which is already covered by \"Intermediary Encapsulation Attacks\" section that suggests that full HTTP ABNF grammar should be applied (in addition to the vaguely defined exclusions of \"HTTP Fields\").\r\n\r\nIt suggests it but does not require it. The other text requires validation. Most intermediaries will not apply the full ABNF validation because a) it requires perfect understanding of the ABNF of all header fields, which they will not have, and b) even if they did, the -semantics ABNF is sufficiently costly to validate that they won't do it. Cheaper validation steps are more likely to be implemented.\r\n\r\n> So I'm back to why is this document in-precisely defining valid/invalid h2-fields.\r\n\r\nThis document (and -semantics) is imprecisely defining them because a [precise definition runs afoul](https://github.com/python-hyper/h11/issues/57) [of](https://github.com/python-hyper/h11/issues/97) [the](https://github.com/golang/go/issues/18215) [real](https://github.com/python-hyper/h11/issues/130) [world](https://github.com/python-hyper/h11/issues/113). The ABNF you're citing represents, fundamentally, guidance. If you want to reject things that don't conform to the ABNF you are free to do so (as -semantics says), but there is no document that obligates you to reject them. This is deliberate, because there is (IMO) absolutely no point in adding normative requirements that, if followed, would harm interoperability.\r\n\r\nIn this case the document is calling out _specific_ cases that MUST be rejected. Practically speaking the intention of this is to encode requirements from other messaging formats, such as -messaging, to ensure that HTTP/2 implementations do not encode header fields that cannot be safely translated to HTTP/1.1. This provides a lower bound on validation: so long as everybody does this, we can safely rely on HTTP/2 messages being _represented_ in HTTP/1.1's framing. Note that this doesn't meant they'll be valid HTTP/1.1 messages, just that they are not going to parse incorrectly.\r\n\r\nWith that in mind, the constraints added here are, in order:\r\n\r\n1. A cheap bitwise check that can be safely vectorised and applied to reject most invalid field names. This is sufficient to get close to the `token` ABNF, but is cheaper.\r\n2. A check that reserves pseudo-headers and is a single-byte comparison.\r\n3. Three vectorizeable field-value checks (NUL, LF, CR) all ensuring valid HTTP/1.1 framing.\r\n4. 4 single-byte comparisons against the first byte of the field-value.\r\n\r\n> This vague definition is going to have a significant carbon footprint. Many Implementations will ultimately end up double validating field names: once to exclude the `invalid-h2-fields` in their h2 layer and then later in their semantic layer to include only the `valid-HTTP-fields`.\r\n\r\nThis problem is solved by not doing that.\r\n\r\nThe ABNF in -semantics, if enforced, is a strict superset of the requirements here except for (2). If your implementation will enforce the requirements in -semantics, you can choose to not enforce these ones at the h2 layer, knowing that the -semantics layer will cover you. The RFC does not bind your implementation, only your observable behaviour: if your implementation ends up rejecting header fields that meet these characteristics, it doesn't matter why you did it, only that you did.\r\n\r\n",
+          "createdAt": "2021-05-27T07:01:23Z",
+          "updatedAt": "2021-05-27T07:01:23Z"
+        },
+        {
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> a) it requires perfect understanding of the ABNF of all header fields, which they will not have, and b) even if they did, the -semantics ABNF is sufficiently costly to validate that they won't do it.\r\n\r\nI don't get that. We're still talking about field *names*, right?",
+          "createdAt": "2021-05-27T07:13:03Z",
+          "updatedAt": "2021-05-27T07:13:03Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> I don't get that. We're still talking about field names, right?\r\n\r\nNo, all of this applies to names and values:\r\n\r\n```\r\nAn intermediary can reject fields that contain invalid field names or values for other\r\nreasons, in particular those that do not conform to the HTTP ABNF grammar from <xref\r\ntarget=\"HTTP\" section=\"5\"/>. Intermediaries that do not perform any validation of fields\r\nother than the minimum required by <xref target=\"HttpHeaders\"/> could forward messages\r\nthat contain invalid field names or values.\r\n```",
+          "createdAt": "2021-05-27T07:21:32Z",
+          "updatedAt": "2021-05-27T07:21:51Z"
+        },
+        {
+          "author": "reschke",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Well.\r\n\r\nValidating names and values are very different things. It would be best to clearly separate these topics.\r\n",
+          "createdAt": "2021-05-27T07:40:57Z",
+          "updatedAt": "2021-05-27T07:40:57Z"
+        },
+        {
+          "author": "gregw",
+          "authorAssociation": "NONE",
+          "body": "I get it that there is a minimum standard being set.\r\n\r\nIn section \"HTTP Fields\" it says that h2 implementations MUST treat as malformed any fields that violate any of the described conditions and an intermediary MUST NOT forward any such headers. \r\nThen again in section \"Intermediary Encapsulation Attacks\" is says the validations of the \"HTTP Fields\" MUST be implemented, which is kind of a duplication as they are already at MUST strength.\r\n\r\nI don't see any normative text that says that an implementation MAY or SHOULD validate against the HTTP ABNF and that if they do so then that is a superset of the conditions in section \"HTTP Fields\"\r\n\r\nI would very much prefer to see text in the \"HTTP Fields\" section that clearly says h2 implementations MAY validate against the HTTP ABNF and that any implementations that do not MUST validate fields against the following conditions.  I'll have a try at this later today.... stand by....",
+          "createdAt": "2021-05-27T07:44:51Z",
+          "updatedAt": "2021-05-27T07:44:51Z"
         }
       ],
       "reviews": [
@@ -33432,6 +33467,106 @@
           "createdAt": "2021-05-25T07:22:57Z",
           "updatedAt": "2021-05-25T07:22:57Z",
           "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY5ODkyNTQ2",
+          "commit": {
+            "abbreviatedOid": "05686ee"
+          },
+          "author": "gregw",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-27T08:31:55Z",
+          "updatedAt": "2021-05-27T08:31:56Z",
+          "comments": [
+            {
+              "originalPosition": 16,
+              "body": "```suggestion\r\n            Field names are strings of ASCII characters that are compared in a case-insensitive\r\n            fashion. Field names MUST be converted to lowercase when constructing a HTTP/2\r\n            message. A request or response containing an uppercase character ('A' to 'Z', ASCII 0x41\r\n            to 0x5a) in a field name MUST be treated as <xref target=\"malformed\">malformed</xref>.\r\n          </t>\r\n          <t>\r\n            HPACK is capable of carrying field names or values that are not valid in HTTP, thus endpoints\r\n            MUST perform some additional validation  and treat as <xref target=\"malformed\">malformed</xref>\r\n            that are not <xref target=\"PseudoHeaderFields\">pseudo-header fields</xref> and that do not comply\r\n            with the validation. An endpoint SHOULD, in addition to the lowercase condition above, validate\r\n            fields against the HTTP ABNF grammar from <xref target=\"HTTP\" section=\"5\"/>. Any endpoint that\r\n            does not validate against the HTTP ABNF grammar MUST at least validate against the following cases:\r\n          </t>\r\n```",
+              "createdAt": "2021-05-27T08:31:55Z",
+              "updatedAt": "2021-05-27T08:31:56Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjY5OTQzNjgw",
+          "commit": {
+            "abbreviatedOid": "05686ee"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-27T09:16:41Z",
+          "updatedAt": "2021-05-27T09:16:41Z",
+          "comments": [
+            {
+              "originalPosition": 16,
+              "body": "Leaving aside the grammar of the text for a moment (I only want to discuss that if we decide to go ahead with adding it), I think the core question is whether or not this is a SHOULD. If -semantics does not make this a SHOULD, why should we?",
+              "createdAt": "2021-05-27T09:16:41Z",
+              "updatedAt": "2021-05-27T09:16:41Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjcwMTI3MjA0",
+          "commit": {
+            "abbreviatedOid": "05686ee"
+          },
+          "author": "gregw",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-27T12:39:59Z",
+          "updatedAt": "2021-05-27T12:40:01Z",
+          "comments": [
+            {
+              "originalPosition": 16,
+              "body": "Validating the HTTP fields in -semantics is a MUST, but I'm not proposing that here.   This change works equally as well with MAY instead of SHOULD. The point being making it clear that the conditions listed below are a minimum validation and that more strict validation may be done instead.\r\n\r\nOf course it is yet clearer with ABNF:\r\n\r\n```suggestion\r\n            Field names are strings of ASCII characters that are compared in a case-insensitive\r\n            fashion. Field names MUST be converted to lowercase when constructing a HTTP/2\r\n            message. A request or response containing an uppercase character ('A' to 'Z', ASCII 0x41\r\n            to 0x5a) in a field name MUST be treated as <xref target=\"malformed\">malformed</xref>.\r\n          </t>\r\n          <t>\r\n            Since HPACK is capable of carrying field names or values that are neither valid in HTTP\r\n            nor secure to transmit as HTTP, fields MUST at least be minimally validated by treating as \r\n            <xref target=\"malformed\">malformed</xref> any field that does not comply with the ABNF:\r\n            <pre>\r\n              field-name = h2-pseudo-field-name / 1*fn-char\r\n              pseudo-field-name = \":\" 1*fn-char \r\n              fn-char = %x21-39 / %x3b-40 / %x5B-7E ; lowercase visible symbols except ':'\r\n\r\n              field-value = 1*fv-char\r\n              fv-char = %x01-09 / %x0b-0c / %x0e-ff ; octets excluding null, CR and LF\r\n            </pre>\r\n            Alternately, fields MAY be more strictly validated and treated as \r\n            <xref target=\"malformed\">malformed</xref> if they do not comply with the \r\n            HTTP ABNF grammar from <xref target=\"HTTP\" section=\"5\"/> modified for \r\n            lowercase field names:\r\n            <pre>\r\n              field-name = h2-pseudo-field-name / 1*fn-char\r\n              pseudo-field-name = \":\" 1*fn-char \r\n              fn-char = \"!\" / \"#\" / \"$\" / \"%\" / \"&amp;\" / \"'\" / \"*\" / \"+\" / \"-\" / \".\" / \"^\" / \"_\" / \"`\" / \"|\" / \"~\" / DIGIT / %x61-7A\r\n              \r\n              field-value = *field-content\r\n              field-content = field-vchar [ 1*( SP / HTAB / field-vchar ) field-vchar ]\r\n              field-vchar = VCHAR / %x80-FF\r\n            </pre>\r\n          </t>\r\n```\r\n\r\nthen delete all the bullet points below.",
+              "createdAt": "2021-05-27T12:39:59Z",
+              "updatedAt": "2021-05-27T12:40:01Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjcwOTkxMjE1",
+          "commit": {
+            "abbreviatedOid": "05686ee"
+          },
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-28T07:04:40Z",
+          "updatedAt": "2021-05-28T07:04:41Z",
+          "comments": [
+            {
+              "originalPosition": 16,
+              "body": "> Validating the HTTP fields in -semantics is a MUST, but I'm not proposing that here.\r\n\r\nIs it? I can\u2019t find that text in the document, can you link me to it?",
+              "createdAt": "2021-05-28T07:04:40Z",
+              "updatedAt": "2021-05-28T07:04:41Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjcxMDAyODIy",
+          "commit": {
+            "abbreviatedOid": "05686ee"
+          },
+          "author": "gregw",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-05-28T07:20:44Z",
+          "updatedAt": "2021-05-28T07:20:44Z",
+          "comments": [
+            {
+              "originalPosition": 16,
+              "body": "In [section 2.4](https://www.ietf.org/archive/id/draft-ietf-httpbis-semantics-16.html#section-2.4) it says:\r\n\r\n> A recipient MUST interpret a received protocol element according to the semantics defined for it by this specification\r\n\r\nThe ABNF is given for the fields in [section 5.](https://www.ietf.org/archive/id/draft-ietf-httpbis-semantics-16.html#name-fields), so by my reading  that would be a protocol element that MUST be interpreted according to the ABNF defined by the specification.\r\n",
+              "createdAt": "2021-05-28T07:20:44Z",
+              "updatedAt": "2021-05-28T07:20:44Z"
+            }
+          ]
         }
       ]
     },
@@ -33571,7 +33706,7 @@
       "labels": [],
       "body": "Closes #783.",
       "createdAt": "2021-05-24T07:15:43Z",
-      "updatedAt": "2021-05-26T11:59:35Z",
+      "updatedAt": "2021-05-27T09:41:20Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "eba436689e3d72435a064c16db312018943f9eef",
@@ -33624,6 +33759,41 @@
           "body": "Regarding multiple RST_STREAM I think there are only two states: either you have sent an RST_STREAM and you don't think your peer has seen it yet, in which case you should ignore frames sent on that stream, or you have sent it and you think your peer _has_ seen it but is still sending non-PRIORITY frames for that stream, in which case you should connection error with PROTOCOL_ERROR.",
           "createdAt": "2021-05-26T11:59:34Z",
           "updatedAt": "2021-05-26T11:59:34Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "Actually there's a third state: the stream might have reached the closed state from your peer sending an RST_STREAM itself, and the spec says that in this case you should treat any frame other than PRIORITY with a stream error (hence return an RST_STREAM). By the way this even opens the way to an RST_STREAM loop but I believe it's discussed elsewhere in the spec.\r\n\r\nAnd that's precisely the problem with this \"closed\" state, it's that the rules to process frames in this state differ depending on how you reached that state, and not exclusively on the state. This basically means there are multiple closed states. But once you delete your stream and consider it's closed, it's not possible anymore to figure what happened.\r\n\r\nSo when you receive frames for a closed stream, you have three options:\r\n  - you assume the peer sent a frame after END_STREAM, it's a protocol error and you break the connection\r\n  - you assume the peer sent a frame after RST_STREAM, it's a tream error and you send RST_STREAM(stream_closed) (and in my opinion don't do that if the frame itself was RST_STREAM)\r\n  - or you consider that you might have closed it yourself and it would be bad to punish your peer for not having received it yet, and thus you assume you were the one having sent the reset and ignore the frames.\r\n\r\nI used to send RST_STREAM(stream_closed) when getting frames in this state because it was the most natural and efficient thing to do, with the least impact. But it can result in RST_STREAM floods. Now I prefer to simply ignore frames, but it also means it's not really possible to abort an upload with an early response (e.g. 401 or 302 on a POST) if you have to drain all input.\r\n",
+          "createdAt": "2021-05-27T07:02:26Z",
+          "updatedAt": "2021-05-27T07:02:26Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Actually there's a third state: the stream might have reached the closed state from your peer sending an RST_STREAM itself, and the spec says that in this case you should treat any frame other than PRIORITY with a stream error (hence return an RST_STREAM).\r\n\r\nWhere does the spec say that's a stream error?",
+          "createdAt": "2021-05-27T07:24:27Z",
+          "updatedAt": "2021-05-27T07:24:27Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "Just found it, page 19 in 7540:\r\n```\r\nclosed:\r\n      The \"closed\" state is the terminal state.\r\n\r\n      An endpoint MUST NOT send frames other than PRIORITY on a closed\r\n      stream.  An endpoint that receives any frame other than PRIORITY\r\n      after receiving a RST_STREAM MUST treat that as a stream error\r\n      (Section 5.4.2) of type STREAM_CLOSED.\r\n```\r\n",
+          "createdAt": "2021-05-27T08:00:15Z",
+          "updatedAt": "2021-05-27T08:00:15Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "body": "That text is replaced by the new text in this PR.",
+          "createdAt": "2021-05-27T09:14:44Z",
+          "updatedAt": "2021-05-27T09:14:44Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "OK, I didn't notice in the diff that this part was replaced (text parts are much less readable with the XML tags around). But I think we're addressing all remaining problems then, cool!",
+          "createdAt": "2021-05-27T09:41:20Z",
+          "updatedAt": "2021-05-27T09:41:20Z"
         }
       ],
       "reviews": []
@@ -33950,7 +34120,7 @@
       "labels": [],
       "body": "Brought over the QUIC text about flow control performance.\r\n\r\ncc @wtarreau\r\n\r\nResolves #784.",
       "createdAt": "2021-05-24T13:52:24Z",
-      "updatedAt": "2021-05-26T17:20:52Z",
+      "updatedAt": "2021-05-27T08:01:06Z",
       "baseRepository": "httpwg/http2-spec",
       "baseRefName": "main",
       "baseRefOid": "8cd154799f2fc0dd925a58292f772d0685ed631e",
@@ -34003,6 +34173,27 @@
           "body": "Thanks Willy, this is definitely clarifying things. So let me try to verify my understanding in bullets.\r\n\r\n1. The default per-stream window size (64kB), and other small per-stream window sizes, has performance problems over fat links.\r\n\r\n    This is true. It is not necessarily true if you have multiple streams in flight and your connection window is larger, but it is definitely true for single streams.\r\n    \r\n2. To that end it is tempting to advertise larger stream windows, to improve throughput.\r\n\r\n3. However that window may not be available in the target logical stream, such that if the user actually consumes it your application would have to buffer it.\r\n\r\n    Possible reasons for this include the TCP send buffer not having room, the target H2 connection window not having room, the target H2 stream window not having room, etc.\r\n\r\nSo this is definitely a resource management issue. Presumably the reason there's an HOL issue here is that, in response to needing to buffer on the outbound side, you stop reading from the H2 connection.\r\n\r\nI can think of a few ways to manage this, but this isn't really the forum for that kind of engineering chat. :wink: Instead, I'll say that I think the current text covers this. Specifically, the text says \"bigger windows improve performance, but you need to bear in mind the resource exhaustion concerns elsewhere in this document\". Should we be saying anything else more specific?",
           "createdAt": "2021-05-26T17:20:52Z",
           "updatedAt": "2021-05-26T17:20:52Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "Well, I only partially agree, in that it's not exactly a resource exhaustion in the pure sense of the term as there can be plenty of resources available (socket buffers everywhere), but more a matter of difficulty/complexity to *reliably* measure available resources at any instant (i.e. the TCP buffer you have on one side is not necessarily dedicated to a single stream, so what is doable during a POST upload can suddenly change before you even have the option to advertise a window size change).\r\n\r\nI agree that this could be discussed elsewhere in the doc in more details, but my point was to at least put a short warning like the one I proposed to raise awareness of implementors against the risk of pushing this setting too far because \"it seems to work much better\".\r\n\r\nFor the record, in haproxy what we've done to mitigate this on the download side is to avoid mixing multiple client connections over a single outgoing H2 connection. This way a slow client cannot block a fast one and it remains possible to advertise slightly larger stream windows that more realistically take into account available room on the path. For uploads, users generally consider that an uploading browser doesn't perform other operations in parallel over the same connection so it's okay to increase the advertised stream as well. But all these mitigations resulted from experience, were not obvious and will not necessarily apply to other implementations, which is why I thought a small warning could be useful.",
+          "createdAt": "2021-05-27T06:46:14Z",
+          "updatedAt": "2021-05-27T06:46:14Z"
+        },
+        {
+          "author": "Lukasa",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Great, so do you think the current text covers it?\r\n\r\n```\r\nSending timely <xref target=\"WINDOW_UPDATE\" format=\"none\">WINDOW_UPDATE</xref> frames can improve performance. Endpoints will\r\nwant to balance the need to improve receive throughput with the need to manage resource exhaustion risks, and should take\r\ncareful note of <xref target=\"dos\"/> in defining their strategy to manage window sizes.\r\n```",
+          "createdAt": "2021-05-27T07:27:57Z",
+          "updatedAt": "2021-05-27T07:27:57Z"
+        },
+        {
+          "author": "wtarreau",
+          "authorAssociation": "NONE",
+          "body": "Looks great like this, thank you :-)",
+          "createdAt": "2021-05-27T08:01:06Z",
+          "updatedAt": "2021-05-27T08:01:06Z"
         }
       ],
       "reviews": [
