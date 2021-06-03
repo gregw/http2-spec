@@ -6,7 +6,7 @@ HTTPbis                                                  M. Thomson, Ed.
 Internet-Draft                                                   Mozilla
 Obsoletes: 7540, 8740 (if approved)                     C. Benfield, Ed.
 Intended status: Standards Track                              Apple Inc.
-Expires: 27 November 2021                                    26 May 2021
+Expires: 5 December 2021                                     3 June 2021
 
 
              Hypertext Transfer Protocol Version 2 (HTTP/2)
@@ -51,7 +51,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 November 2021.
+   This Internet-Draft will expire on 5 December 2021.
 
 Copyright Notice
 
@@ -89,6 +89,7 @@ Table of Contents
      5.2.  Flow Control
        5.2.1.  Flow-Control Principles
        5.2.2.  Appropriate Use of Flow Control
+       5.2.3.  Flow Control Performance
      5.3.  Prioritization
        5.3.1.  Background of Priority in HTTP/2
        5.3.2.  Priority Signaling in this Document
@@ -995,6 +996,19 @@ Table of Contents
    control, the receiver MUST read from the TCP receive buffer in a
    timely fashion.  Failure to do so could lead to a deadlock when
    critical frames, such as WINDOW_UPDATE, are not read and acted upon.
+
+5.2.3.  Flow Control Performance
+
+   If an endpoint cannot ensure that its peer always has available flow
+   control window space that is greater than the peer's bandwidth-delay
+   product on this connection, its receive throughput will be limited by
+   HTTP/2 flow control.  This will result in degraded performance.
+
+   Sending timely WINDOW_UPDATE frames can improve performance.
+   Endpoints will want to balance the need to improve receive throughput
+   with the need to manage resource exhaustion risks, and should take
+   careful note of Section 10.5 in defining their strategy to manage
+   window sizes.
 
 5.3.  Prioritization
 
