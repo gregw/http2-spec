@@ -795,46 +795,46 @@ Table of Contents
 
    closed:  The "closed" state is the terminal state.
 
+      An stream enters the "closed" state after an endpoint both sends
+      and receives a frame with an END_STREAM flag set.  A stream also
+      enters the "closed" state after an endpoint either sends or
+      receives a RST_STREAM frame.
+
       An endpoint MUST NOT send frames other than PRIORITY on a closed
-      stream.  An endpoint that receives any frame other than PRIORITY
-      after receiving a RST_STREAM MUST treat that as a stream error
-      (Section 5.4.2) of type STREAM_CLOSED.  Similarly, an endpoint
-      that receives any frames after receiving a frame with the
-      END_STREAM flag set MUST treat that as a connection error
-      (Section 5.4.1) of type STREAM_CLOSED, unless the frame is
-      permitted as described below.
+      stream.  An endpoint MAY treat receipt of any other type of frame
+      on a "closed" stream as a connection error (Section 5.4.1) of type
+      STREAM_CLOSED, except as noted below.
 
-      WINDOW_UPDATE or RST_STREAM frames can be received in this state
-      for a short period after a DATA or HEADERS frame containing an
-      END_STREAM flag is sent.  Until the remote peer receives and
-      processes RST_STREAM or the frame bearing the END_STREAM flag, it
-      might send frames of these types.  Endpoints MUST ignore
-      WINDOW_UPDATE or RST_STREAM frames received in this state, though
-      endpoints MAY choose to treat frames that arrive a significant
-      time after sending END_STREAM as a connection error
-      (Section 5.4.1) of type PROTOCOL_ERROR.
+      An endpoint that sends a frame with the END_STREAM flag set or a
+      RST_STREAM frame might receive a WINDOW_UPDATE or RST_STREAM frame
+      from its peer in the time before the peer receives and processes
+      the frame that closes the stream.
 
-      PRIORITY frames can be sent on closed streams.
+      An endpoint that sends a RST_STREAM frame on a stream that is in
+      the "open" state could receive any type of frame.  The peer might
+      have sent or enqueued for sending these frames before processing
+      the RST_STREAM frame.  An endpoint MUST minimally process and then
+      discard any frames it receives in this state.  This means updating
+      header compression state for HEADERS and PUSH_PROMISE frames;
+      PUSH_PROMISE frames also cause the promised stream to become
+      "reserved", even when the PUSH_PROMISE frame is received on a
+      closed stream; and, the content of DATA frames counts toward the
+      connection flow-control window.
 
-      If this state is reached as a result of sending a RST_STREAM
-      frame, the peer that receives the RST_STREAM might have already
-      sent -- or enqueued for sending -- frames on the stream that
-      cannot be withdrawn.  An endpoint MUST ignore frames that it
-      receives on closed streams after it has sent a RST_STREAM frame.
-      An endpoint MAY choose to limit the period over which it ignores
-      frames and treat frames that arrive after this time as being in
-      error.
-
-      Flow-controlled frames (i.e., DATA) received after sending
-      RST_STREAM are counted toward the connection flow-control window.
-      Even though these frames might be ignored, because they are sent
-      before the sender receives the RST_STREAM, the sender will
-      consider the frames to count against the flow-control window.
-
-      An endpoint might receive a PUSH_PROMISE frame after it sends
-      RST_STREAM.  PUSH_PROMISE causes a stream to become "reserved"
-      even if the associated stream has been reset.  Therefore, a
-      RST_STREAM is needed to close an unwanted promised stream.
+      An endpoint can perform this minimal processing for all streams
+      that are in the "closed" state.  Endpoints MAY use other signals
+      to detect that a peer has received the frames that caused stream
+      to become "closed" and treat receipt of any frame other than
+      PRIORITY as a connection error (Section 5.4.1) of type
+      PROTOCOL_ERROR.  Endpoints can use frames that indicate that the
+      peer has received the closing signal to drive this.  Endpoints
+      SHOULD NOT use timers for this purpose.  For example, an endpoint
+      that sends a SETTINGS frame after closing a stream can safely
+      treat receipt of a DATA frame on that stream as an error after
+      receiving an acknowledgement of the settings.  Other things that
+      might be used are PING frames, receiving data on streams that were
+      created after closing the stream, or responses to requests created
+      after closing the stream.
 
    In the absence of more specific guidance elsewhere in this document,
    implementations SHOULD treat the receipt of a frame that is not
