@@ -3345,10 +3345,9 @@ Table of Contents
 
    This document establishes a registry for HTTP/2 frame type codes.
    The "HTTP/2 Frame Type" registry manages an 8-bit space.  The "HTTP/2
-   Frame Type" registry operates under either of the "IETF Review" or
-   "IESG Approval" policies [RFC5226] for values between 0x00 and 0xef,
-   with values between 0xf0 and 0xff being reserved for Experimental
-   Use.
+   Frame Type" registry operates under either of the Section 4.8 of
+   "IETF Review" [RFC8126] or Section 4.10 of "IESG Approval" [RFC8126]
+   policies.
 
    New entries in this registry require the following information:
 
@@ -3393,9 +3392,8 @@ Table of Contents
 
    This document establishes a registry for HTTP/2 settings.  The
    "HTTP/2 Settings" registry manages a 16-bit space.  The "HTTP/2
-   Settings" registry operates under the "Expert Review" policy
-   [RFC5226] for values in the range from 0x0000 to 0xefff, with values
-   between and 0xf000 and 0xffff being reserved for Experimental Use.
+   Settings" registry operates under the Section 4.5 of "Expert Review"
+   policy [RFC8126].
 
    New registrations are advised to provide the following information:
 
@@ -3433,8 +3431,8 @@ Table of Contents
 
    This document establishes a registry for HTTP/2 error codes.  The
    "HTTP/2 Error Code" registry manages a 32-bit space.  The "HTTP/2
-   Error Code" registry operates under the "Expert Review" policy
-   [RFC5226].
+   Error Code" registry operates under the Section 4.5 of "Expert
+   Review" policy [RFC8126].
 
    Registrations for error codes are required to include a description
    of the error code.  An expert reviewer is advised to examine new
@@ -3569,9 +3567,10 @@ Table of Contents
               RFC 3986, January 2005,
               <https://datatracker.ietf.org/doc/html/rfc3986>.
 
-   [RFC5226]  Narten, T. and H. Alvestrand, "Guidelines for Writing an
-              IANA Considerations Section in RFCs", BCP 26, RFC 5226,
-              May 2008, <https://datatracker.ietf.org/doc/html/rfc5226>.
+   [RFC8126]  Cotton, M., Leiba, B., and R. Narten, "Guidelines for
+              Writing an IANA Considerations Section in RFCs", BCP 26,
+              RFC 8126, DOI 10.17487/RFC8126, June 2017,
+              <https://datatracker.ietf.org/doc/html/rfc8126>.
 
    [RFC8470]  Thomson, M., Nottingham, M., and W. Tarreau, "Using Early
               Data in HTTP", RFC 8470, DOI 10.17487/RFC8470, September
@@ -3993,6 +3992,9 @@ Appendix B.  Changes from RFC 7540
    *  The HTTP/1.1 Upgrade mechanism is no longer specified in this
       document.  It was never widely deployed, with plaintext HTTP/2
       users choosing to use the prior-knowledge implementation instead.
+
+   *  The ranges of codepoints for settings and frame types that were
+      reserved for "Experimental Use" are now available for general use.
 
 Contributors
 
